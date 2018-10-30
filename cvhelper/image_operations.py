@@ -40,3 +40,16 @@ def resize(img: np.ndarray, factor: int) -> np.ndarray:
 
 def color_to_gray(img: np.ndarray) -> np.ndarray:
     return cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+
+
+def blur_gaussian(
+    img: np.ndarray, kernel_size: int = 3, sigma_x=None, sigma_y=None
+) -> np.ndarray:
+    if sigma_x is None:
+        sigma_x = 0
+    if sigma_y is None:
+        sigma_y = 0
+
+    return cv.GaussianBlur(
+        img, ksize=(kernel_size, kernel_size), sigmaX=sigma_x, sigmaY=sigma_y
+    )
