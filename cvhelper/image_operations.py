@@ -2,44 +2,44 @@ import numpy as np
 import cv2 as cv
 
 
-def morph_open(img: np.ndarray, size: int, iterations=1) -> np.ndarray:
+def morph_open(image: np.ndarray, size: int, iterations=1) -> np.ndarray:
     return cv.morphologyEx(
-        img,
+        image,
         cv.MORPH_OPEN,
         cv.getStructuringElement(cv.MORPH_RECT, (size, size)),
         iterations=iterations,
     )
 
 
-def morph_close(img: np.ndarray, size: int, iterations=1) -> np.ndarray:
+def morph_close(image: np.ndarray, size: int, iterations=1) -> np.ndarray:
     return cv.morphologyEx(
-        img,
+        image,
         cv.MORPH_CLOSE,
         cv.getStructuringElement(cv.MORPH_RECT, (size, size)),
         iterations=iterations,
     )
 
 
-def normalize(img: np.ndarray, min: int = 0, max: int = 255) -> np.ndarray:
-    normalized = np.zeros_like(img)
-    cv.normalize(img, normalized, max, min, cv.NORM_MINMAX)
+def normalize(image: np.ndarray, min: int = 0, max: int = 255) -> np.ndarray:
+    normalized = np.zeros_like(image)
+    cv.normalize(image, normalized, max, min, cv.NORM_MINMAX)
     return normalized
 
 
-def resize(img: np.ndarray, factor: int) -> np.ndarray:
+def resize(image: np.ndarray, factor: int) -> np.ndarray:
     """
     Resize an image with the given factor. A factor of 2 gives an image of half the size.
-    :param img: Image to resize
+    :param image: Image to resize
     :param factor: Shrink factor. A factor of 2 halves the image size.
     :return: A resized image.
     """
     return cv.resize(
-        img, None, fx=1 / factor, fy=1 / factor, interpolation=cv.INTER_CUBIC
+        image, None, fx=1 / factor, fy=1 / factor, interpolation=cv.INTER_CUBIC
     )
 
 
-def color_to_gray(img: np.ndarray) -> np.ndarray:
-    return cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+def color_to_gray(image: np.ndarray) -> np.ndarray:
+    return cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
 
 def blur_gaussian(
