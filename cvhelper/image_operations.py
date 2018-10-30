@@ -43,7 +43,7 @@ def color_to_gray(img: np.ndarray) -> np.ndarray:
 
 
 def blur_gaussian(
-    img: np.ndarray, kernel_size: int = 3, sigma_x=None, sigma_y=None
+    image: np.ndarray, kernel_size: int = 3, sigma_x=None, sigma_y=None
 ) -> np.ndarray:
     if sigma_x is None:
         sigma_x = 0
@@ -51,5 +51,20 @@ def blur_gaussian(
         sigma_y = 0
 
     return cv.GaussianBlur(
-        img, ksize=(kernel_size, kernel_size), sigmaX=sigma_x, sigmaY=sigma_y
+        image, ksize=(kernel_size, kernel_size), sigmaX=sigma_x, sigmaY=sigma_y
     )
+
+
+def threshold_otsu(image: np.ndarray, max_value: int = 255) -> np.ndarray:
+    _, img = cv.threshold(image, 0, max_value, cv.THRESH_BINARY + cv.THRESH_OTSU)
+    return img
+
+
+def threshold_binary(image: np.ndarray, value: int, max_value: int = 255) -> np.ndarray:
+    _, img = cv.threshold(image, value, max_value, cv.THRESH_BINARY)
+    return img
+
+
+def threshold_tozero(image: np.ndarray, value: int, max_value: int = 255) -> np.ndarray:
+    _, img = cv.threshold(image, value, max_value, cv.THRESH_TOZERO)
+    return img
