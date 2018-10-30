@@ -10,7 +10,7 @@ from .utils import Color
 def rectangle(
     image: np.ndarray,
     rectangle: Rect,
-    color: Union[Color, Tuple[int]],
+    color: Union[Color, Tuple[int, ...]],
     thickness: int = 1,
 ):
     if isinstance(color, Color):
