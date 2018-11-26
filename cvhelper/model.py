@@ -29,28 +29,28 @@ class Point:
         return cls(0, 0)
 
 
-@dataclass(frozen=True)
+@dataclass()
 class Rect:
     x: Union[int, float]
     y: Union[int, float]
     width: Union[int, float]
     height: Union[int, float]
 
+    def __init__(
+        self,
+        x: Union[int, float],
+        y: Union[int, float],
+        width: Union[int, float],
+        height: Union[int, float],
+        padding: Union[int, float] = 0,
+    ):
+        self.x = x - padding
+        self.y = y - padding
+        self.width = width + padding * 2
+        self.height = height + padding * 2
+
     def __iter__(self):
         return iter((self.x, self.y, self.width, self.height))
-
-    @classmethod
-    def from_rect(cls, rect: "Rect", padding: int = 0):
-        if rect.x - padding < 0:
-            raise ValueError(f"x - padding cannot be less than 0")
-        elif rect.y - padding < 0:
-            raise ValueError(f"y - padding cannot be less than 0")
-        return cls(
-            rect.x - padding,
-            rect.y - padding,
-            rect.width + padding * 2,
-            rect.height + padding * 2,
-        )
 
     @property
     def tl(self):
