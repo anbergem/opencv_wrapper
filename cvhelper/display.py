@@ -12,9 +12,11 @@ def circle(
     center: Point,
     radius: int,
     color: Union[int, Tuple[int, int, int]],
-    thickness: Optional[int] = None,
+    thickness: int = 1,
 ):
-    cv.circle(img, (*center,), radius, color=color, thickness=thickness)
+    x = int(center.x)
+    y = int(center.y)
+    cv.circle(img, (x, y), radius, color=color, thickness=thickness)
 
 
 def line(
