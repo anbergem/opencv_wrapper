@@ -1,5 +1,5 @@
 from dataclasses import dataclass, astuple
-from typing import Union
+from typing import Union, Tuple
 
 
 @dataclass
@@ -42,6 +42,7 @@ class Rect:
         y: Union[int, float],
         width: Union[int, float],
         height: Union[int, float],
+        *,
         padding: Union[int, float] = 0,
     ):
         self.x = x - padding
@@ -53,21 +54,25 @@ class Rect:
         return iter((self.x, self.y, self.width, self.height))
 
     @property
-    def tl(self):
+    def tl(self) -> Point:
         return Point(self.x, self.y)
 
     @property
-    def br(self):
+    def br(self) -> Point:
         return Point(self.x + self.width, self.y + self.height)
+
+    @property
+    def center(self) -> Point:
+        return Point(self.x + (self.width / 2), self.y + (self.height / 2))
 
     @property
     def aspoints(self):
         return tuple(astuple(point) for point in (self.tl, self.br))
 
     @property
-    def area(self):
+    def area(self) -> float:
         return self.width * self.height
 
     @property
-    def slice(self):
+    def slice(self) -> Tuple[slice, slice]:
         return slice(self.y, self.y + self.height), slice(self.x, self.x + self.width)
