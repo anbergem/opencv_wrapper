@@ -1,8 +1,8 @@
 import enum
-from typing import Dict, Union
+from typing import Dict, Tuple
 
-import numpy as np
 import cv2 as cv
+import numpy as np
 
 from .model import Rect, Point
 
@@ -10,6 +10,7 @@ from .model import Rect, Point
 class MorphShape(enum.Enum):
     RECT: int = cv.MORPH_RECT
     CROSS: int = cv.MORPH_CROSS
+    CIRCLE: int = cv.MORPH_ELLIPSE
 
 
 class AngleUnit(enum.Enum):
@@ -23,11 +24,26 @@ class Contour:
         :param points: points from cv.findContour()
         :param moment: moments from cv.moments().
         """
-        self.points = points
-        if moment is None:
-            moment = cv.moments(points)
-        self.moment = moment
-        self.area = moment["m00"]
+        self._points = points
+        self._moment = moment
+
+    @property
+    def points(self) -> np.ndarray:
+        return self._points
+
+    @property
+    def area(self) -> float:
+        if self._moment is None:
+            self._moment = cv.moments(self.points)
+        return self._moment["m00"]
+
+    @property
+    def bounding_rect(self) -> Rect:
+        return Rect(*cv.boundingRect(self.points))
+
+    @property
+    def center(self) -> Point:
+        return self.bounding_rect.center
 
     def __len__(self):
         return len(self.points)
@@ -47,29 +63,65 @@ class Contour:
         self.points[key[0], 0, key[1]] = value
 
 
-def dilate(image: np.ndarray, kernel_size, shape: MorphShape = MorphShape.RECT):
+def find_external_contours(image: np.ndarray) -> Tuple[Contour]:
+    _, contours, _ = cv.findContours(image, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    return (*map(Contour, contours),)
+
+
+def dilate(
+    image: np.ndarray,
+    kernel_size,
+    shape: MorphShape = MorphShape.RECT,
+    iterations: int = 1,
+):
     _error_if_image_empty(image)
     return cv.dilate(
-        image, cv.getStructuringElement(shape.value, (kernel_size, kernel_size))
-    )
-
-
-def morph_open(image: np.ndarray, size: int, iterations=1) -> np.ndarray:
-    _error_if_image_empty(image)
-    return cv.morphologyEx(
         image,
-        cv.MORPH_OPEN,
-        cv.getStructuringElement(cv.MORPH_RECT, (size, size)),
+        cv.getStructuringElement(shape.value, (kernel_size, kernel_size)),
         iterations=iterations,
     )
 
 
-def morph_close(image: np.ndarray, size: int, iterations=1) -> np.ndarray:
+def erode(
+    image: np.ndarray,
+    kernel_size,
+    shape: MorphShape = MorphShape.RECT,
+    iterations: int = 1,
+):
+    _error_if_image_empty(image)
+    return cv.erode(
+        image,
+        cv.getStructuringElement(shape.value, (kernel_size, kernel_size)),
+        iterations=iterations,
+    )
+
+
+def morph_open(
+    image: np.ndarray,
+    kernel_size: int,
+    shape: MorphShape = MorphShape.RECT,
+    iterations=1,
+) -> np.ndarray:
+    _error_if_image_empty(image)
+    return cv.morphologyEx(
+        image,
+        cv.MORPH_OPEN,
+        cv.getStructuringElement(shape.value, (kernel_size, kernel_size)),
+        iterations=iterations,
+    )
+
+
+def morph_close(
+    image: np.ndarray,
+    kernel_size: int,
+    shape: MorphShape = MorphShape.RECT,
+    iterations=1,
+) -> np.ndarray:
     _error_if_image_empty(image)
     return cv.morphologyEx(
         image,
         cv.MORPH_CLOSE,
-        cv.getStructuringElement(cv.MORPH_RECT, (size, size)),
+        cv.getStructuringElement(shape.value, (kernel_size, kernel_size)),
         iterations=iterations,
     )
 
@@ -84,14 +136,19 @@ def normalize(image: np.ndarray, min: int = 0, max: int = 255) -> np.ndarray:
 def resize(image: np.ndarray, factor: int) -> np.ndarray:
     """
     Resize an image with the given factor. A factor of 2 gives an image of half the size.
+
+    If the image has 4 dimensions, it is assumed to be a series of images.
     :param image: Image to resize
     :param factor: Shrink factor. A factor of 2 halves the image size.
-    :return: A resized image.
+    :return: A resized image or a numpy array containing a series of resized images..
     """
     _error_if_image_empty(image)
-    return cv.resize(
-        image, None, fx=1 / factor, fy=1 / factor, interpolation=cv.INTER_CUBIC
-    )
+    if image.ndim == 2 or image.ndim == 3:
+        return cv.resize(
+            image, None, fx=1 / factor, fy=1 / factor, interpolation=cv.INTER_CUBIC
+        )
+    elif image.ndim == 4:
+        return np.array([resize(img, factor) for img in image])
 
 
 def bgr2gray(image: np.ndarray) -> np.ndarray:
@@ -136,6 +193,13 @@ def blur_gaussian(
 def blur_median(image: np.ndarray, kernel_size: int = 3) -> np.ndarray:
     _error_if_image_empty(image)
     return cv.medianBlur(image, kernel_size)
+
+
+def threshold_adaptive(image: np.ndarray, block_size: int, c: int = 0) -> np.ndarray:
+    _error_if_image_empty(image)
+    return cv.adaptiveThreshold(
+        image, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, block_size, c
+    )
 
 
 def threshold_otsu(image: np.ndarray, max_value: int = 255) -> np.ndarray:
