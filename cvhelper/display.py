@@ -9,20 +9,19 @@ from .utils import Color
 
 def circle(
     img: np.ndarray,
-    center: Point,
+    center: Union[Point, Tuple[int, int]],
     radius: int,
     color: Union[int, Tuple[int, int, int]],
     thickness: int = 1,
 ):
-    x = int(center.x)
-    y = int(center.y)
+    x, y = map(int, center)
     cv.circle(img, (x, y), radius, color=color, thickness=thickness)
 
 
 def line(
     image: np.ndarray,
-    point1: Point,
-    point2: Point,
+    point1: Union[Point, Tuple[int, int]],
+    point2: Union[Point, Tuple[int, int]],
     color: Union[int, Tuple[int, int, int]],
     thickness: int = 1,
 ):
@@ -43,7 +42,7 @@ def rectangle(
 def put_text(
     img: np.ndarray,
     text: str,
-    origin: Point,
+    origin: Union[Point, Tuple[int, int]],
     color: Color = Color.RED,
     thickness: Union[int, float] = 1,
     scale: Union[int, float] = 1,
