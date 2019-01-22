@@ -1,4 +1,4 @@
-from typing import Union, Tuple, Optional
+from typing import Union, Tuple
 
 import cv2 as cv
 import numpy as np
@@ -45,9 +45,18 @@ def put_text(
     text: str,
     origin: Point,
     color: Color = Color.RED,
+    thickness: Union[int, float] = 1,
     scale: Union[int, float] = 1,
 ) -> None:
-    cv.putText(img, text, (*origin,), cv.FONT_HERSHEY_SIMPLEX, scale, color.value)
+    cv.putText(
+        img,
+        text,
+        (*origin,),
+        cv.FONT_HERSHEY_SIMPLEX,
+        scale,
+        color.value,
+        thickness=thickness,
+    )
 
 
 def wait_key(delay: int, key="q") -> bool:
