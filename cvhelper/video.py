@@ -9,6 +9,7 @@ Usage:
 >>>        cv.waitKey(1)
 """
 from contextlib import contextmanager
+from typing import Optional
 
 import cv2 as cv
 
@@ -24,25 +25,52 @@ def load_video(filename: str):
         video.release()
 
 
-def read_frames(video: cv.VideoCapture):
-    ok, frame = video.read()
+def read_frames(
+    video: cv.VideoCapture, from_frame: int = 0, to_frame: Optional[int] = None
+):
+    """
+    :param video: Video object to read from.
+    :param from_frame: Frame number to skip to.
+    :param to_frame: Frame number to stop reading, exclusive.
+    """
+    if to_frame is not None and from_frame >= to_frame:
+        raise ValueError(
+            f"from_frame ({from_frame}) must be less than to_frame ({to_frame})"
+        )
+
+    ok, current = video.read()
     if not ok:
         raise ValueError(f"Could not read video.")
 
     next_ok, next = video.read()
 
-    yield frame
+    # Skip frames until from_frame
+    counter = 0
+    while from_frame > counter:
+        if not next_ok:
+            raise ValueError(f"Not enough frames to skip to frame {current}")
+        current = next
+
+        next_ok, next = video.read()
+        counter += 1
+
+    yield current
 
     # If next frame is also good
     if next_ok:
-        frame = next
+        current = next
 
         while True:
+            # +1 to make to_frame exclusive
+            if counter + 1 == to_frame:
+                break
+
             next_ok, next = video.read()
+            counter += 1
 
-            yield frame
+            yield current
 
-            frame = next
+            current = next
 
             if not next_ok:
                 break
