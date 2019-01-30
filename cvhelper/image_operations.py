@@ -151,6 +151,11 @@ def resize(image: np.ndarray, factor: int) -> np.ndarray:
         return np.array([resize(img, factor) for img in image])
 
 
+def gray2bgr(image: np.ndarray) -> np.ndarray:
+    _error_if_image_empty(image)
+    return cv.cvtColor(image, cv.COLOR_GRAY2BGR)
+
+
 def bgr2gray(image: np.ndarray) -> np.ndarray:
     _error_if_image_empty(image)
     return cv.cvtColor(image, cv.COLOR_BGR2GRAY)
