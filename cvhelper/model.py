@@ -1,11 +1,11 @@
 from dataclasses import dataclass, astuple
-from typing import Union, Tuple
+from typing import Tuple
 
 
 @dataclass
 class Point:
-    x: Union[int, float]
-    y: Union[int, float]
+    x: float
+    y: float
 
     def __add__(self, other):
         if self.__class__ is other.__class__:
@@ -31,19 +31,13 @@ class Point:
 
 @dataclass()
 class Rect:
-    x: Union[int, float]
-    y: Union[int, float]
-    width: Union[int, float]
-    height: Union[int, float]
+    x: float
+    y: float
+    width: float
+    height: float
 
     def __init__(
-        self,
-        x: Union[int, float],
-        y: Union[int, float],
-        width: Union[int, float],
-        height: Union[int, float],
-        *,
-        padding: Union[int, float] = 0,
+        self, x: float, y: float, width: float, height: float, *, padding: float = 0
     ):
         self.x = x - padding
         self.y = y - padding
@@ -75,4 +69,7 @@ class Rect:
 
     @property
     def slice(self) -> Tuple[slice, slice]:
-        return slice(self.y, self.y + self.height), slice(self.x, self.x + self.width)
+        return (
+            slice(int(self.y), int(self.y) + int(self.height)),
+            slice(int(self.x), int(self.x) + int(self.width)),
+        )

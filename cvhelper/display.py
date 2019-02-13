@@ -40,6 +40,7 @@ def rectangle(
 ):
     if isinstance(color, Color):
         color = color.value
+    rectangle = Rect(*map(int, rectangle))
     cv.rectangle(image, *rectangle.aspoints, color, thickness)
 
 
@@ -48,15 +49,15 @@ def put_text(
     text: str,
     origin: Union[Point, Tuple[int, int]],
     color: Union[int, Tuple[int, int, int], Color] = Color.RED,
-    thickness: Union[int, float] = 1,
-    scale: Union[int, float] = 1,
+    thickness: int = 1,
+    scale: float = 1,
 ):
     if isinstance(color, Color):
         color = color.value
     cv.putText(
         img,
         text,
-        (*origin,),
+        (*map(int, origin),),
         cv.FONT_HERSHEY_SIMPLEX,
         scale,
         color,

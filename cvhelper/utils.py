@@ -1,6 +1,6 @@
 import enum
 
-import numpy as np
+import random
 
 
 class ColorAttr(enum.EnumMeta):
@@ -11,7 +11,7 @@ class ColorAttr(enum.EnumMeta):
 
     @property
     def RANDOM(self):
-        return (*np.random.randint(0, 256, size=3),)
+        return tuple(random.randint(0, 255) for _ in range(3))
 
 
 class Color(enum.Enum, metaclass=ColorAttr):
