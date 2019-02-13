@@ -13,7 +13,7 @@ def dense_optical_flow(
     poly_sigma: float = 1.1,
     gaussian_window: bool = True,
     initial_flow: np.ndarray = None,
-):
+) -> np.ndarray:
     flags = 0
     if initial_flow is not None:
         flags += cv.OPTFLOW_USE_INITIAL_FLOW

@@ -26,6 +26,7 @@ class Contour:
         """
         self._points = points
         self._moment = moment
+        self._bounding_rect = None
 
     @property
     def points(self) -> np.ndarray:
@@ -39,7 +40,9 @@ class Contour:
 
     @property
     def bounding_rect(self) -> Rect:
-        return Rect(*cv.boundingRect(self.points))
+        if self._bounding_rect is None:
+            self._bounding_rect = Rect(*cv.boundingRect(self.points))
+        return self._bounding_rect
 
     @property
     def center(self) -> Point:
