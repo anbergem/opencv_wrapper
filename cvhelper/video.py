@@ -26,17 +26,18 @@ def load_video(filename: str):
 
 
 def read_frames(
-    video: cv.VideoCapture, from_frame: int = 0, to_frame: Optional[int] = None
+    video: cv.VideoCapture, start: int = 0, stop: Optional[int] = None, step: int = 1
 ):
     """
     :param video: Video object to read from.
-    :param from_frame: Frame number to skip to.
-    :param to_frame: Frame number to stop reading, exclusive.
+    :param start: Frame number to skip to.
+    :param stop: Frame number to stop reading, exclusive.
+    :param step: Step to iterate over frames. Similar to range's step. Must be greater than 0.
     """
-    if to_frame is not None and from_frame >= to_frame:
-        raise ValueError(
-            f"from_frame ({from_frame}) must be less than to_frame ({to_frame})"
-        )
+    if stop is not None and start >= stop:
+        raise ValueError(f"from_frame ({start}) must be less than to_frame ({stop})")
+    if step <= 0 or not isinstance(step, int):
+        raise ValueError(f"Step must be an integer greater than 0: {step}")
 
     ok, current = video.read()
     if not ok:
@@ -46,9 +47,11 @@ def read_frames(
 
     # Skip frames until from_frame
     counter = 0
-    while from_frame > counter:
+    while start > counter:
         if not next_ok:
-            raise ValueError(f"Not enough frames to skip to frame {current}")
+            raise ValueError(
+                f"Not enough frames to skip to frame {start}. File ended at frame {counter}."
+            )
         current = next
 
         next_ok, next = video.read()
@@ -61,16 +64,22 @@ def read_frames(
         current = next
 
         while True:
-            # +1 to make to_frame exclusive
-            if counter + 1 == to_frame:
-                break
+            for i in range(step):
+                # +1 to make to_frame exclusive
+                if counter + 1 == stop:
+                    return
 
-            next_ok, next = video.read()
-            counter += 1
+                next_ok, next = video.read()
+                counter += 1
+
+                if not next_ok:
+                    if i == step - 1:
+                        yield current
+                    return
 
             yield current
 
             current = next
 
             if not next_ok:
-                break
+                return
