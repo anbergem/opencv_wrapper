@@ -1,5 +1,5 @@
 import enum
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 
 import cv2 as cv
 import numpy as np
@@ -136,7 +136,11 @@ def normalize(image: np.ndarray, min: int = 0, max: int = 255) -> np.ndarray:
     return normalized
 
 
-def resize(image: np.ndarray, factor: int) -> np.ndarray:
+def resize(
+    image: np.ndarray,
+    factor: Optional[int] = None,
+    shape: Optional[Tuple[int, ...]] = None,
+) -> np.ndarray:
     """
     Resize an image with the given factor. A factor of 2 gives an image of half the size.
 
@@ -145,11 +149,16 @@ def resize(image: np.ndarray, factor: int) -> np.ndarray:
     :param factor: Shrink factor. A factor of 2 halves the image size.
     :return: A resized image or a numpy array containing a series of resized images..
     """
+    if shape is None and factor is None:
+        raise ValueError("Either shape or factor must be specified.")
     _error_if_image_empty(image)
     if image.ndim == 2 or image.ndim == 3:
-        return cv.resize(
-            image, None, fx=1 / factor, fy=1 / factor, interpolation=cv.INTER_CUBIC
-        )
+        if shape is not None:
+            return cv.resize(image, shape, interpolation=cv.INTER_CUBIC)
+        else:
+            return cv.resize(
+                image, None, fx=1 / factor, fy=1 / factor, interpolation=cv.INTER_CUBIC
+            )
     elif image.ndim == 4:
         return np.array([resize(img, factor) for img in image])
 
@@ -234,15 +243,36 @@ def threshold_otsu_tozero(image: np.ndarray, max_value: int = 255) -> np.ndarray
     return img
 
 
-def canny(image: np.ndarray, low_threshold: float, high_threshold: float) -> np.ndarray:
+def canny(
+    image: np.ndarray,
+    low_threshold: float,
+    high_threshold: float,
+    high_pass_size: int,
+    l2_gradient=True,
+) -> np.ndarray:
+    """
+    Perform Canny's edge detection on `image`.
+    :param image: The image to be processed.
+    :param low_threshold: The lower threshold in the hysteresis thresholding.
+    :param high_threshold: The higher threshold in the hysteresis thresholding.
+    :param high_pass_size: The size of the Sobel filter, used to find gradients.
+    :param l2_gradient: Whether to use the L2 gradient. The L1 gradient is used if false.
+    :return: Binary image of thinned edges.
+    """
     _error_if_image_empty(image)
+    if high_pass_size not in [3, 5, 7]:
+        raise ValueError(f"High pass size must be either 3, 5 or 7: {high_pass_size}")
     return cv.Canny(
-        image, threshold1=low_threshold, threshold2=high_threshold, L2gradient=True
+        image,
+        threshold1=low_threshold,
+        threshold2=high_threshold,
+        apertureSize=high_pass_size,
+        L2gradient=l2_gradient,
     )
 
 
 def scale_contour_to_rect(contour: Contour, rect: Rect) -> Contour:
-    contour = Contour(contour.points, contour.moment)
+    contour = Contour(contour.points)
     for i in range(len(contour)):
         contour[i, 0] = contour[i, 0] - rect.x
         contour[i, 1] = contour[i, 1] - rect.y
