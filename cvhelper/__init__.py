@@ -1,5 +1,6 @@
 from .display import *
 from .image_operations import *
+from .misc_functions import *
 from .model import *
 from .tracking import *
 from .utils import *
