@@ -69,6 +69,14 @@ class Rect:
         return Point(self.x, self.y)
 
     @property
+    def tr(self) -> Point:
+        return Point(self.x + self.width, self.y)
+
+    @property
+    def bl(self) -> Point:
+        return Point(self.x, self.y + self.height)
+
+    @property
     def br(self) -> Point:
         return Point(self.x + self.width, self.y + self.height)
 
