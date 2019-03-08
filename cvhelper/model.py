@@ -47,6 +47,23 @@ class Rect:
     def __iter__(self):
         return iter((self.x, self.y, self.width, self.height))
 
+    def __truediv__(self, other):
+        if isinstance(other, (int, float)):
+            return Rect(
+                self.x / other, self.y / other, self.width / other, self.height / other
+            )
+        return NotImplemented
+
+    def __floordiv__(self, other):
+        if isinstance(other, int):
+            return Rect(
+                self.x // other,
+                self.y // other,
+                self.width // other,
+                self.height // other,
+            )
+        return NotImplemented
+
     @property
     def tl(self) -> Point:
         return Point(self.x, self.y)
