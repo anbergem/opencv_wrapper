@@ -1,5 +1,5 @@
 import enum
-from typing import Dict, Tuple, Optional
+from typing import Tuple, Optional
 
 import cv2 as cv
 import numpy as np
@@ -19,13 +19,13 @@ class AngleUnit(enum.Enum):
 
 
 class Contour:
-    def __init__(self, points, moment: Dict = None):
+    def __init__(self, points):
         """
         :param points: points from cv.findContour()
         :param moment: moments from cv.moments().
         """
         self._points = points
-        self._moment = moment
+        self._moments = None
         self._bounding_rect = None
 
     @property
@@ -34,9 +34,9 @@ class Contour:
 
     @property
     def area(self) -> float:
-        if self._moment is None:
-            self._moment = cv.moments(self.points)
-        return self._moment["m00"]
+        if self._moments is None:
+            self._moments = cv.moments(self.points)
+        return self._moments["m00"]
 
     @property
     def bounding_rect(self) -> Rect:
