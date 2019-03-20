@@ -15,9 +15,10 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/anbergem/cvhelper",
     classifiers=[
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
+        "Topic :: Scientific/Engineering :: Image Recognition",
     ],
     keywords="opencv",
     install_requires=["numpy<=1.15.3", "opencv-python<=3.4.3.18"],
