@@ -9,9 +9,10 @@ Usage:
 >>>        cv.waitKey(1)
 """
 from contextlib import contextmanager
-from typing import Optional
+from typing import Optional, Iterator
 
 import cv2 as cv
+import numpy as np
 
 
 @contextmanager
@@ -27,7 +28,7 @@ def load_video(filename: str):
 
 def read_frames(
     video: cv.VideoCapture, start: int = 0, stop: Optional[int] = None, step: int = 1
-):
+) -> Iterator[np.ndarray]:
     """
     :param video: Video object to read from.
     :param start: Frame number to skip to.
