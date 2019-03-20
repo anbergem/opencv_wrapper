@@ -52,7 +52,7 @@ with cvh.load_video("path/to/file") as video:
 ### Rotate A Color Wheel
 Say we have the following color wheel image, which we want to rotate.
 
-![alt text](images/color_wheel.png)
+![alt text](https://raw.githubusercontent.com/anbergem/cvhelper/master/images/color_wheel.png)
 
 We of course want to rotate it at it's center, which is not in the center
 of the image. A possible solution using OpenCV would be 
@@ -93,7 +93,7 @@ the found contour. This is just for viewing pruposes.
 
 We get the following result.
 
-![alt text](images/opencv.png)
+![alt text](https://raw.githubusercontent.com/anbergem/cvhelper/master/images/helper.png)
 
 Although a perfectly fine solution, we cannot help but rotate the whole image.
 Here is a solution using cvhelper.
@@ -135,7 +135,7 @@ a random color.
 
 We get the following result.
 
-![alt text](images/helper.png)
+![alt text](https://raw.githubusercontent.com/anbergem/cvhelper/master/images/opencv.png)
 
 Not only is this a tad less tedious to write, but we are also easily able to 
 rotate only the relevant part of the circle by slicing. The contour, rectangle
