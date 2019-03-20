@@ -81,8 +81,17 @@ cv.rectangle(rotated_image, (x, y), (x + w, y + h), color)
 cv.imshow("Image", rotated_image)
 cv.waitKey(0)
 ```
+We first convert the image to gray scale. The color wheel in gray scale does not 
+contain any values of pure white. We can therefore threshold the image at a high
+threshold, to segment the color wheel. 
 
-We get the following result. The drawing of the rectangle is just for show. 
+We then find contours in the image (which in this case only will be one contour), and
+find the bounding rectangle enclosing the contour. From this rectangle we can find the center
+point by the means of the top left corner, the height and width. We use this to create
+a rotation matrix, and call the affine warp function. Lastly, we draw a rectangle around
+the found contour. This is just for viewing pruposes.
+
+We get the following result.
 
 ![alt text](images/opencv.png)
 
@@ -113,8 +122,18 @@ cvh.rectangle(img, rect, cvh.Color.RANDOM)
 cv.imshow("Image", img)
 cvh.wait_key(0)
 ```
+We again follow the same approach. However, with the Contour class, we can
+simply call the bounding rect property. This yields a Rect object, which
+has a center property. Convenient. 
 
-With the following result
+Where we before were left with no (obvious) choice but to rotate the whole image,
+we can now simply slice the image at the rectangle, only rotating the figure itself.
+For this exact purpose, it doesn't make much different, but it is a demonstration.
+We find the new center from which to rotatet, and simply call the rotate image function. 
+We can here choose whether to use degrees or radians. Lastly we draw a rectangle with
+a random color.
+
+We get the following result.
 
 ![alt text](images/helper.png)
 
