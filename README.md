@@ -1,4 +1,4 @@
-# Simple helper package for opencv
+# Simple helper package for opencv-python
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 cvhelper is a simpler wrapper for the opencv-python package. As mentioned package only
@@ -10,9 +10,18 @@ have been a demand-and-supply model, where functionality is added as new tedious
 opencv-python are found. Do not hesitate to file an issue, requesting new functionality or 
 enhancement proposals! 
 
+## Installation
+Installation is by the python package manager, pip. 
+```bash
+pip install cvhelper
+```
+This also installs the dependencies `opencv-python`, `opencv-contrib-python` and `numpy`, if not already present.
+
 ## Examples
 ### Reading videos
-OpenCV:
+This code speaks for itself.
+
+Vanilla OpenCV:
 ```python
 import cv2 as cv
 video = cv.VideoCapture("path/to/file")
@@ -109,6 +118,18 @@ With the following result
 
 ![alt text](images/helper.png)
 
-Not only is this a tad less tedious to write, but we are also able to 
+Not only is this a tad less tedious to write, but we are also easily able to 
 rotate only the relevant part of the circle by slicing. The contour, rectangle
 and point objects are also an ease to work with. 
+
+### Other Area of Ease
+While not providing examples, there are many other parts of the OpenCV 
+that become an ease to work with, when using cvhelper. Areas include
+
+* Morphology 
+* Image normalization
+* Color conversion
+* Thresholding
+* Image smoothing
+
+
