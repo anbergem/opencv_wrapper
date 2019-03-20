@@ -20,9 +20,6 @@ setup(
         "Operating System :: OS Independent",
     ],
     keywords="opencv",
-    install_requires=[
-        "numpy<=1.15.3",
-        "opencv-contrib-python<=3.4.3.18",
-        "opencv-python<=3.4.3.18",
-    ],
+    install_requires=["numpy<=1.15.3", "opencv-python<=3.4.3.18"],
+    python_requires=">=3.7",
 )
