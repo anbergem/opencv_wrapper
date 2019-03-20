@@ -1,5 +1,5 @@
 from dataclasses import dataclass, astuple
-from typing import Tuple
+from typing import Tuple, Union
 
 
 @dataclass
@@ -63,6 +63,16 @@ class Rect:
                 self.height // other,
             )
         return NotImplemented
+
+    def __contains__(self, point: Union[Point, Tuple[int, int]]):
+        if isinstance(point, tuple):
+            point = Point(*point)
+        if isinstance(point, Point):
+            return (
+                self.x <= point.x < self.x + self.width
+                and self.y <= point.y < self.y + self.height
+            )
+        raise ValueError("Must be called with a point or a 2-tuple (x, y)")
 
     @property
     def tl(self) -> Point:

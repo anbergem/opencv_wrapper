@@ -7,6 +7,6 @@ setup(
     packages=["cvhelper"],
     author="Andreas Bergem",
     author_email="bergem.andreas@gmail.com",
-    description="A helper package for opencv",
+    description="A helper package for OpenCV",
     license="MIT",
 )
