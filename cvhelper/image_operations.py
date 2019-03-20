@@ -219,15 +219,22 @@ def threshold_adaptive(image: np.ndarray, block_size: int, c: int = 0) -> np.nda
     )
 
 
-def threshold_otsu(image: np.ndarray, max_value: int = 255) -> np.ndarray:
+def threshold_otsu(
+    image: np.ndarray, max_value: int = 255, inverse: bool = False
+) -> np.ndarray:
     _error_if_image_empty(image)
-    _, img = cv.threshold(image, 0, max_value, cv.THRESH_BINARY + cv.THRESH_OTSU)
+    flags = cv.THRESH_BINARY_INV if inverse else cv.THRESH_BINARY
+    flags += cv.THRESH_OTSU
+    _, img = cv.threshold(image, 0, max_value, flags)
     return img
 
 
-def threshold_binary(image: np.ndarray, value: int, max_value: int = 255) -> np.ndarray:
+def threshold_binary(
+    image: np.ndarray, value: int, max_value: int = 255, inverse: bool = False
+) -> np.ndarray:
     _error_if_image_empty(image)
-    _, img = cv.threshold(image, value, max_value, cv.THRESH_BINARY)
+    flags = cv.THRESH_BINARY_INV if inverse else cv.THRESH_BINARY
+    _, img = cv.threshold(image, value, max_value, flags)
     return img
 
 

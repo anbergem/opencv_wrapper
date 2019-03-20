@@ -91,5 +91,5 @@ def put_text(
     )
 
 
-def wait_key(delay: int, key="q") -> bool:
-    return cv.waitKey(delay) & 0xFF == ord(key)
+def wait_key(delay: int) -> str:
+    return cv.waitKey(delay) & 0xFF
