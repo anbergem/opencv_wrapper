@@ -147,7 +147,8 @@ def resize(
     If the image has 4 dimensions, it is assumed to be a series of images.
     :param image: Image to resize
     :param factor: Shrink factor. A factor of 2 halves the image size.
-    :return: A resized image or a numpy array containing a series of resized images..
+    :param shape: Output image size.
+    :return: A resized image
     """
     if shape is None and factor is None:
         raise ValueError("Either shape or factor must be specified.")
@@ -159,8 +160,7 @@ def resize(
             return cv.resize(
                 image, None, fx=1 / factor, fy=1 / factor, interpolation=cv.INTER_CUBIC
             )
-    elif image.ndim == 4:
-        return np.array([resize(img, factor) for img in image])
+    raise ValueError("Image must have either 2 or 3 dimensions.")
 
 
 def gray2bgr(image: np.ndarray) -> np.ndarray:
