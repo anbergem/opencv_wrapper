@@ -21,8 +21,7 @@ class AngleUnit(enum.Enum):
 class Contour:
     def __init__(self, points):
         """
-        :param points: points from cv.findContour()
-        :param moment: moments from cv.moments().
+        :param points: points from cv.findContours()
         """
         self._points = points
         self._moments = None
@@ -30,22 +29,42 @@ class Contour:
 
     @property
     def points(self) -> np.ndarray:
+        """
+        Return the contour points as would be returned from cv.findContours().
+
+        :return: The contour points.
+        """
         return self._points
 
     @property
     def area(self) -> float:
+        """
+        Return the area computed from cv.moments(points).
+
+        :return: The area of the contour
+        """
         if self._moments is None:
             self._moments = cv.moments(self.points)
         return self._moments["m00"]
 
     @property
     def bounding_rect(self) -> Rect:
+        """
+        Return the bounding rectangle around the contour. Uses cv.boundingRect(points).
+        :return: The bounding rectangle of the contour
+        """
         if self._bounding_rect is None:
             self._bounding_rect = Rect(*cv.boundingRect(self.points))
         return self._bounding_rect
 
     @property
     def center(self) -> Point:
+        """
+        Return the center point of the area. Due to skewed densities, the center
+        of the bounding rectangle is preferred to the center from moments.
+
+        :return: The center of the bounding rectangle
+        """
         return self.bounding_rect.center
 
     def __len__(self):
@@ -67,6 +86,14 @@ class Contour:
 
 
 def find_external_contours(image: np.ndarray) -> Tuple[Contour]:
+    """
+    Find the external contours in the `image`.
+
+    Alias for cv.findContours(image, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+
+    :param image: The image in with to find the contours
+    :return: A tuple of Contour objects
+    """
     _, contours, _ = cv.findContours(image, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     return (*map(Contour, contours),)
 
