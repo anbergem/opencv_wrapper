@@ -5,7 +5,7 @@ with open("README.md") as fh:
 
 setup(
     name="cvhelper",
-    version="0.0.4",
+    version="0.1.0",
     packages=["cvhelper"],
     author="Andreas Bergem",
     author_email="bergem.andreas@gmail.com",
