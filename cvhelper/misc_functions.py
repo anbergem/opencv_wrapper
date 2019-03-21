@@ -1,9 +1,9 @@
-from typing import Union
+from typing import Union, Optional
 
 import cv2 as cv
 import numpy as np
 
-from .model import Point
+from .model import Point, Rect
 
 
 def norm(input: Union[Point, np.ndarray]):
@@ -92,3 +92,25 @@ def line_iterator(img: np.ndarray, p1: Point, p2: Point):
     itbuffer[:, num_channels] = img[itbuffer[:, 1], itbuffer[:, 0]]
 
     return itbuffer
+
+
+def rect_intersection(rect1: Rect, rect2: Rect) -> Optional[Rect]:
+    """
+    Calculate the intersection between two rectangles.
+
+    :param rect1: First rectangle
+    :param rect2: Second rectangle
+    :return: A rectangle representing the intersection between `rect1` and `rect2`
+             if it exists, else None.
+    """
+    top = min(rect1, rect2, key=lambda x: x.tl.y)
+    bottom = max(rect2, rect1, key=lambda x: x.tl.y)
+    if top.br.y < bottom.tl.y or top.br.x < bottom.bl.x or top.bl.x > bottom.br.x:
+        return None
+
+    tl = Point(max(top.tl.x, bottom.tl.x), bottom.tl.y)
+
+    width = min(bottom.br.x, top.br.x) - tl.x
+    height = min(bottom.br.y, top.br.y) - tl.y
+
+    return Rect(*tl, width, height)

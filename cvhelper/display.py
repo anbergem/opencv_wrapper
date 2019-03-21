@@ -4,7 +4,7 @@ from enum import Enum, auto
 import cv2 as cv
 import numpy as np
 
-from .model import Point, Rect
+from .model import Point, Rect, Contour
 from .utils import Color, _ensure_compatible_color
 from .misc_functions import line_iterator
 
@@ -130,6 +130,30 @@ def put_text(
         color,
         thickness=thickness,
     )
+
+
+def draw_contour(image: np.ndarray, contour: Contour, color: Color, thickness=1):
+    """
+    Draw a contour on an image.
+    :param image: Image to draw on
+    :param contour: Contour to draw
+    :param color: Color to draw
+    :param thickness: Thickness to draw with
+    """
+    color = _ensure_compatible_color(color)
+    cv.drawContours(image, [contour.points], 0, color, thickness)
+
+
+def draw_contours(image: np.ndarray, contours: Contour, color: Color, thickness=1):
+    """
+    Draw multiple contours on an image
+    :param image: Image to draw on
+    :param contours: Contours to draw
+    :param color: Color to draw with
+    :param thickness: Thickness to draw with
+    """
+    color = _ensure_compatible_color(color)
+    cv.drawContours(image, [*map(lambda x: x.points, contours)], -1, color, thickness)
 
 
 def wait_key(delay: int) -> str:
