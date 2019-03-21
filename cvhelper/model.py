@@ -1,6 +1,9 @@
 from dataclasses import dataclass, astuple
 from typing import Tuple, Union
 
+import numpy as np
+import cv2 as cv
+
 
 @dataclass
 class Point:
@@ -108,3 +111,70 @@ class Rect:
             slice(int(self.y), int(self.y) + int(self.height)),
             slice(int(self.x), int(self.x) + int(self.width)),
         )
+
+
+class Contour:
+    def __init__(self, points):
+        """
+        :param points: points from cv.findContours()
+        """
+        self._points = points
+        self._moments = None
+        self._bounding_rect = None
+
+    @property
+    def points(self) -> np.ndarray:
+        """
+        Return the contour points as would be returned from cv.findContours().
+
+        :return: The contour points.
+        """
+        return self._points
+
+    @property
+    def area(self) -> float:
+        """
+        Return the area computed from cv.moments(points).
+
+        :return: The area of the contour
+        """
+        if self._moments is None:
+            self._moments = cv.moments(self.points)
+        return self._moments["m00"]
+
+    @property
+    def bounding_rect(self) -> Rect:
+        """
+        Return the bounding rectangle around the contour. Uses cv.boundingRect(points).
+        :return: The bounding rectangle of the contour
+        """
+        if self._bounding_rect is None:
+            self._bounding_rect = Rect(*cv.boundingRect(self.points))
+        return self._bounding_rect
+
+    @property
+    def center(self) -> Point:
+        """
+        Return the center point of the area. Due to skewed densities, the center
+        of the bounding rectangle is preferred to the center from moments.
+
+        :return: The center of the bounding rectangle
+        """
+        return self.bounding_rect.center
+
+    def __len__(self):
+        return len(self.points)
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self.points[key, 0]
+        if len(key) > 2:
+            raise ValueError(f"Too many indices: {len(key)}")
+        return self.points[key[0], 0, key[1]]
+
+    def __setitem__(self, key, value):
+        if isinstance(key, int):
+            self.points[key, 0] = value
+        if len(key) > 2:
+            raise ValueError(f"Too many indices: {len(key)}")
+        self.points[key[0], 0, key[1]] = value
