@@ -1,5 +1,6 @@
 from dataclasses import dataclass, astuple
-from typing import Tuple, Union
+from typing import Tuple, Union, Iterator, cast
+import builtins
 
 import numpy as np
 import cv2 as cv
@@ -24,7 +25,7 @@ class Point:
             return Point(self.x - other[0], self.y - other[1])
         return NotImplemented
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[float]:
         return iter((self.x, self.y))
 
     @classmethod
@@ -32,8 +33,15 @@ class Point:
         return cls(0, 0)
 
 
+CVPoint = Union[Point, Tuple[int, int]]
+
+
 @dataclass()
 class Rect:
+    """
+    Model class of a rectangle.
+    """
+
     x: float
     y: float
     width: float
@@ -67,50 +75,86 @@ class Rect:
             )
         return NotImplemented
 
-    def __contains__(self, point: Union[Point, Tuple[int, int]]):
+    def __contains__(self, point: CVPoint):
         if isinstance(point, tuple):
             point = Point(*point)
         if isinstance(point, Point):
             return (
-                self.x <= point.x < self.x + self.width
-                and self.y <= point.y < self.y + self.height
+                self.x <= point.x <= self.x + self.width
+                and self.y <= point.y <= self.y + self.height
             )
         raise ValueError("Must be called with a point or a 2-tuple (x, y)")
 
     @property
     def tl(self) -> Point:
+        """
+        :return: The top-left corner of the rectangle.
+        """
         return Point(self.x, self.y)
 
     @property
     def tr(self) -> Point:
+        """
+        :return: The top-right corner of the rectangle.
+        """
         return Point(self.x + self.width, self.y)
 
     @property
     def bl(self) -> Point:
+        """
+        :return: The bottom-left corner of the rectangle.
+        """
         return Point(self.x, self.y + self.height)
 
     @property
     def br(self) -> Point:
+        """
+        :return: The bottom-right corner of the rectangle.
+        """
         return Point(self.x + self.width, self.y + self.height)
 
     @property
     def center(self) -> Point:
+        """
+        :return: The center point of the rectangle.
+        """
         return Point(self.x + (self.width / 2), self.y + (self.height / 2))
 
     @property
-    def aspoints(self):
-        return tuple(astuple(point) for point in (self.tl, self.br))
+    def aspoints(self) -> Tuple[Tuple[float, float], Tuple[float, float]]:
+        """
+        Yields the rectangle as top-left and bottom-right points, as used in cv2.rectangle.
+
+        :return: The top-left and bottom-right corners of the rectangle as two-tuples.
+        """
+        tl = cast(Tuple[float, float], tuple(self.tl))
+        br = cast(Tuple[float, float], tuple(self.br))
+        return tl, br
 
     @property
     def area(self) -> float:
+        """
+        :return: The area of the rectangle
+        """
         return self.width * self.height
 
     @property
-    def slice(self) -> Tuple[slice, slice]:
+    def slice(self) -> Tuple[builtins.slice, builtins.slice]:
+        """
+        Creates a slice of the rectangle, to be used on a 2-D numpy array-
+
+        For example `image[rect.slice] = 255` will fill the area represented by
+        the rectangle as white, in a gray-scale image.
+
+        :return: The slice of the rectangle.
+        """
         return (
             slice(int(self.y), int(self.y) + int(self.height)),
             slice(int(self.x), int(self.x) + int(self.width)),
         )
+
+
+CVRect = Union[Rect, Tuple[int, int, int, int]]
 
 
 class Contour:
@@ -146,6 +190,7 @@ class Contour:
     def bounding_rect(self) -> Rect:
         """
         Return the bounding rectangle around the contour. Uses cv.boundingRect(points).
+
         :return: The bounding rectangle of the contour
         """
         if self._bounding_rect is None:

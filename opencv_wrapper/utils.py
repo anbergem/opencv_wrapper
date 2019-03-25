@@ -1,11 +1,8 @@
 import enum
 import random
-import operator
 from typing import Union, Tuple
 
 import numpy as np
-
-from .image_operations import normalize
 
 
 class _ColorAttr(enum.EnumMeta):
@@ -20,6 +17,12 @@ class _ColorAttr(enum.EnumMeta):
 
 
 class Color(enum.Enum, metaclass=_ColorAttr):
+    """
+    Color enum for predefined colors.
+
+    Color.RANDOM returns a random color. Colors can be added together.
+    """
+
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
     BLUE = (200, 0, 0)
@@ -37,15 +40,14 @@ class Color(enum.Enum, metaclass=_ColorAttr):
         return NotImplemented
 
 
-def _ensure_compatible_color(color: Union[int, Tuple[int, int, int], Color]):
+CVColor = Union[Color, int, Tuple[int, int, int]]
+
+
+def _ensure_color_int(color: CVColor) -> Tuple[int, int, int]:
     if isinstance(color, Color):
         color = color.value
 
     # cv drawing methods need python ints, not numpy ints
-    if hasattr(color, "__len__"):
-        if not isinstance(color[0], int):
-            color = tuple(map(int, color))
-    else:
-        color = int(color)
-
-    return color
+    bgr = np.ones(3, dtype=int) * color  # implicit broadcasting
+    b, g, r = map(int, bgr)
+    return b, g, r

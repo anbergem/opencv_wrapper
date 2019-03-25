@@ -18,7 +18,7 @@ class AngleUnit(enum.Enum):
     DEGREES = enum.auto()
 
 
-def find_external_contours(image: np.ndarray) -> Tuple[Contour]:
+def find_external_contours(image: np.ndarray) -> Tuple[Contour, ...]:
     """
     Find the external contours in the `image`.
 
@@ -110,16 +110,16 @@ def resize(
     :param shape: Output image size.
     :return: A resized image
     """
-    if shape is None and factor is None:
-        raise ValueError("Either shape or factor must be specified.")
     _error_if_image_empty(image)
     if image.ndim == 2 or image.ndim == 3:
         if shape is not None:
             return cv.resize(image, shape, interpolation=cv.INTER_CUBIC)
-        else:
+        elif factor is not None:
             return cv.resize(
                 image, None, fx=1 / factor, fy=1 / factor, interpolation=cv.INTER_CUBIC
             )
+        else:
+            raise ValueError("Either shape or factor must be specified.")
     raise ValueError("Image must have either 2 or 3 dimensions.")
 
 

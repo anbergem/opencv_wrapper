@@ -113,4 +113,4 @@ def rect_intersection(rect1: Rect, rect2: Rect) -> Optional[Rect]:
     width = min(bottom.br.x, top.br.x) - tl.x
     height = min(bottom.br.y, top.br.y) - tl.y
 
-    return Rect(*tl, width, height)
+    return Rect(tl.x, tl.y, width, height)

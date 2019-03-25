@@ -1,11 +1,12 @@
-from typing import Union, Tuple
+from typing import Union, Tuple, Sequence
 from enum import Enum, auto
+import warnings
 
 import cv2 as cv
 import numpy as np
 
-from .model import Point, Rect, Contour
-from .utils import Color, _ensure_compatible_color
+from .model import Point, CVPoint, Rect, Contour, CVRect
+from .utils import CVColor, _ensure_color_int
 from .misc_functions import line_iterator
 
 
@@ -15,31 +16,32 @@ class LineStyle(Enum):
 
 
 def circle(
-    img: np.ndarray,
+    image: np.ndarray,
     center: Union[Point, Tuple[int, int]],
     radius: int,
-    color: Union[int, Tuple[int, int, int], Color],
+    color: CVColor,
     thickness: int = 1,
 ):
     """
-    Draw a circle on `img` at `center` with `radius`.
+    Draw a circle on `image` at `center` with `radius`.
 
-    :param img: The image to draw the circle
+    :param image: The image to draw the circle
     :param center: The center at which to draw the circle
     :param radius: The radius of the circle
     :param color: The color of the circle.
     :param thickness: The thickness of the circle; can be -1 to fill the circle.
     """
+    _warn_point_outside_image(image, center)
     x, y = map(int, center)
-    color = _ensure_compatible_color(color)
-    cv.circle(img, (x, y), radius, color=color, thickness=thickness)
+    color = _ensure_color_int(color)
+    cv.circle(image, (x, y), radius, color=color, thickness=thickness)
 
 
 def line(
     image: np.ndarray,
     point1: Union[Point, Tuple[int, int]],
     point2: Union[Point, Tuple[int, int]],
-    color: Union[int, Tuple[int, int, int], Color],
+    color: CVColor,
     thickness: int = 1,
     line_style: LineStyle = LineStyle.SOLID,
 ):
@@ -54,12 +56,12 @@ def line(
     :param line_style: The line style to draw. For LineStyle.DASHED, only thickness
                        1 is currently supported.
     """
-    if isinstance(point1, tuple) or isinstance(point1.x, float):
-        point1 = Point(*map(int, point1))
-    if isinstance(point2, tuple) or isinstance(point2.x, float):
-        point2 = Point(*map(int, point2))
+    _warn_point_outside_image(image, point1)
+    _warn_point_outside_image(image, point2)
+    point1 = Point(*map(int, point1))
+    point2 = Point(*map(int, point2))
 
-    color = _ensure_compatible_color(color)
+    color = _ensure_color_int(color)
 
     if line_style is LineStyle.SOLID:
         cv.line(image, (*point1,), (*point2,), color, thickness, cv.LINE_AA)
@@ -74,7 +76,7 @@ def line(
 def rectangle(
     image: np.ndarray,
     rect: Rect,
-    color: Union[Color, Tuple[int, int, int], int],
+    color: CVColor,
     thickness: int = 1,
     line_style: LineStyle = LineStyle.SOLID,
 ):
@@ -88,7 +90,8 @@ def rectangle(
     :param line_style: The line style to draw. For LineStyle.DASHED, only thickness
                        1 is currently supported.
     """
-    color = _ensure_compatible_color(color)
+    _warn_rect_outside_image(image, rect)
+    color = _ensure_color_int(color)
     rect = Rect(*map(int, rect))
     if line_style is LineStyle.SOLID:
         cv.rectangle(image, *rect.aspoints, color, thickness)
@@ -102,17 +105,17 @@ def rectangle(
 
 
 def put_text(
-    img: np.ndarray,
+    image: np.ndarray,
     text: str,
-    origin: Union[Point, Tuple[int, int]],
-    color: Union[int, Tuple[int, int, int], Color] = Color.RED,
+    origin: CVPoint,
+    color: CVColor,
     thickness: int = 1,
     scale: float = 1,
 ):
     """
     Put `text` on `image` at `origin`.
 
-    :param img: The image to draw the text
+    :param image: The image to draw the text
     :param text: The text to be drawn
     :param origin: The origin to start the text. The bottom of the first character
                    is set in the origin.
@@ -120,9 +123,10 @@ def put_text(
     :param thickness: The thickness of the text
     :param scale: The scale of the text.
     """
-    color = _ensure_compatible_color(color)
+    _warn_point_outside_image(image, origin)
+    color = _ensure_color_int(color)
     cv.putText(
-        img,
+        image,
         text,
         (*map(int, origin),),
         cv.FONT_HERSHEY_SIMPLEX,
@@ -132,7 +136,7 @@ def put_text(
     )
 
 
-def draw_contour(image: np.ndarray, contour: Contour, color: Color, thickness=1):
+def draw_contour(image: np.ndarray, contour: Contour, color: CVColor, thickness=1):
     """
     Draw a contour on an image.
     :param image: Image to draw on
@@ -140,11 +144,13 @@ def draw_contour(image: np.ndarray, contour: Contour, color: Color, thickness=1)
     :param color: Color to draw
     :param thickness: Thickness to draw with
     """
-    color = _ensure_compatible_color(color)
+    color = _ensure_color_int(color)
     cv.drawContours(image, [contour.points], 0, color, thickness)
 
 
-def draw_contours(image: np.ndarray, contours: Contour, color: Color, thickness=1):
+def draw_contours(
+    image: np.ndarray, contours: Sequence[Contour], color: CVColor, thickness=1
+):
     """
     Draw multiple contours on an image
     :param image: Image to draw on
@@ -152,8 +158,9 @@ def draw_contours(image: np.ndarray, contours: Contour, color: Color, thickness=
     :param color: Color to draw with
     :param thickness: Thickness to draw with
     """
-    color = _ensure_compatible_color(color)
-    cv.drawContours(image, [*map(lambda x: x.points, contours)], -1, color, thickness)
+    color = _ensure_color_int(color)
+    points = (*map(lambda x: x.points, contours),)
+    cv.drawContours(image, points, -1, color, thickness)
 
 
 def wait_key(delay: int) -> str:
@@ -167,3 +174,25 @@ def wait_key(delay: int) -> str:
              `if wait_key(0) == ord('q'): continue`
     """
     return cv.waitKey(delay) & 0xFF
+
+
+def _warn_point_outside_image(image: np.ndarray, point: CVPoint):
+    if not isinstance(point, Point):
+        point = Point(*point)
+    if (not 0 <= point.y <= image.shape[0]) or (not 0 <= point.x <= image.shape[1]):
+        warnings.warn(
+            f"Point {(point.x, point.y)} outside image of shape {image.shape}."
+        )
+
+
+def _warn_rect_outside_image(image: np.ndarray, rect: CVRect):
+    if not isinstance(rect, Point):
+        rect = Rect(*rect)
+    boundary = Rect(0, 0, *image.shape[:2][::-1])
+    if not (
+        rect.tl in boundary
+        or rect.tr in boundary
+        or rect.bl in boundary
+        or rect.br in boundary
+    ):
+        warnings.warn(f"{rect} outside image of shape {image.shape}.")
