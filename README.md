@@ -94,7 +94,7 @@ the found contour. This is just for viewing pruposes.
 
 We get the following result.
 
-![alt text](https://raw.githubusercontent.com/anbergem/opencv_wrapper/master/images/helper.png)
+![alt text](https://raw.githubusercontent.com/anbergem/opencv_wrapper/master/images/opencv.png)
 
 Although a perfectly fine solution, we cannot help but rotate the whole image.
 Here is a solution using opencv_wrapper.
@@ -130,16 +130,16 @@ has a center property. Convenient.
 Where we before were left with no (obvious) choice but to rotate the whole image,
 we can now simply slice the image at the rectangle, only rotating the figure itself.
 For this exact purpose, it doesn't make much different, but it is a demonstration.
-We find the new center from which to rotatet, and simply call the rotate image function. 
+We find the new center from which to rotate, and simply call the rotate image function. 
 We can here choose whether to use degrees or radians. Lastly we draw a rectangle with
 a random color.
 
 We get the following result.
 
-![alt text](https://raw.githubusercontent.com/anbergem/opencv_wrapper/master/images/opencv.png)
+![alt text](https://raw.githubusercontent.com/anbergem/opencv_wrapper/master/images/helper.png)
 
 Not only is this a tad less tedious to write, but we are also easily able to 
-rotate only the relevant part of the circle by slicing. The contour, rectangle
+rotate only the relevant part of the circle by slicing¹. The contour, rectangle
 and point objects are also an ease to work with. 
 
 ### Other Area of Ease
@@ -152,4 +152,8 @@ that become an ease to work with, when using opencv_wrapper. Areas include
 * Thresholding
 * Image smoothing
 
-
+¹Disclosure: The slicing is not that har do accomplish, from `x, y, w, h`. 
+We can create it like this
+```python
+our_slice = (slice(y, y+h), slice(x, x+w))
+```
