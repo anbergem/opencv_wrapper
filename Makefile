@@ -1,8 +1,8 @@
 clean:
-	rm -rf cvhelper.egg-info dist build __pycache__
+	rm -rf opencv-wrapper.egg-info dist build __pycache__
 
 uninstall:
-	pip uninstall cvhelper
+	pip uninstall opencv-wrapper
 
 wheel:
 	make clean
@@ -11,7 +11,7 @@ wheel:
 upload-pypi:
 	make clean
 	make wheel
-	twine upload dist/cvhelper*
+	twine upload dist/opencv-wrapper*
 
 upload-test:
 	make clean

@@ -1,21 +1,25 @@
-# Simple helper package for opencv-python
+# Simple wrapper for opencv-python
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+[![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
+[![Python version](https://img.shields.io/pypi/pyversions/opencv_wrapper.svg)](https://pypi.org/project/opencv-wrapper/)
+[![Pypi version](https://img.shields.io/pypi/v/opencv_wrapper.svg?color=blue)](https://pypi.org/project/opencv-wrapper/)
+[![Pypi version](https://img.shields.io/github/license/anbergem/opencv_wrapper.svg)](https://pypi.org/project/opencv-wrapper/)
 
-cvhelper is a simpler wrapper for the opencv-python package. As mentioned package only
+OpenCV Wrapper is a simpler wrapper for the `opencv-python` package. As mentioned package only
 gives access to OpenCV functions, in a C++ style, it can be tedious to write. There is
-also no support for the OpenCV classes like Rect, Point etc. cvhelper attempts to fix that.
+also no support for the OpenCV classes like Rect, Point etc. OpenCV Wrapper attempts to fix that.
 
 The package is at an early state, and contributions are welcome! The contents of the package
 have been a demand-and-supply model, where functionality is added as new tedious things in
-opencv-python are found. Do not hesitate to file an issue, requesting new functionality or 
+`opencv-python` are found. Do not hesitate to file an issue, requesting new functionality or 
 enhancement proposals! 
 
 ## Installation
 Installation is by the python package manager, pip. 
 ```bash
-pip install cvhelper
+pip install opencv-wrapper
 ```
-This also installs the dependencies `opencv-python`, `opencv-contrib-python` and `numpy`, if not already present.
+This also installs the dependencies `opencv-python` and `numpy`, if not already present.
 
 ## Examples
 ### Reading videos
@@ -38,21 +42,21 @@ while True:
 video.release()
 ``` 
 
-cvhelper:
+opencv_wrapper:
 ```python
 import cv2 as cv
-import cvhelper as cvh
-with cvh.load_video("path/to/file") as video:
-   for frame in cvh.read_frames(video, start, stop, step):
+import opencv_wrapper as cvw
+with cvw.load_video("path/to/file") as video:
+   for frame in cvw.read_frames(video, start, stop, step):
        cv.imshow("Frame", frame)
-       if cvh.wait_key(0) == ord('q'):
+       if cvw.wait_key(0) == ord('q'):
             break 
 ```
 
 ### Rotate A Color Wheel
 Say we have the following color wheel image, which we want to rotate.
 
-![alt text](https://raw.githubusercontent.com/anbergem/cvhelper/master/images/color_wheel.png)
+![alt text](https://raw.githubusercontent.com/anbergem/opencv_wrapper/master/images/color_wheel.png)
 
 We of course want to rotate it at it's center, which is not in the center
 of the image. A possible solution using OpenCV would be 
@@ -93,20 +97,20 @@ the found contour. This is just for viewing pruposes.
 
 We get the following result.
 
-![alt text](https://raw.githubusercontent.com/anbergem/cvhelper/master/images/helper.png)
+![alt text](https://raw.githubusercontent.com/anbergem/opencv_wrapper/master/images/opencv.png)
 
 Although a perfectly fine solution, we cannot help but rotate the whole image.
-Here is a solution using cvhelper.
+Here is a solution using opencv_wrapper.
 
-cvhelper:
+opencv_wrapper:
 ```python
 import cv2 as cv
-import cvhelper as cvh
+import opencv_wrapper as cvw
 
 img = cv.imread("resources/color_wheel_invert.png")
-gray = cvh.bgr2gray(img)
-otsu = cvh.threshold_binary(gray, 250, inverse=True)
-contours = cvh.find_external_contours(otsu)
+gray = cvw.bgr2gray(img)
+otsu = cvw.threshold_binary(gray, 250, inverse=True)
+contours = cvw.find_external_contours(otsu)
 contour = contours[0]
 rect = contour.bounding_rect  # Gives a Rect object
 degrees = 60
@@ -114,13 +118,13 @@ degrees = 60
 center = rect.center  # Gives a Point object
 top_left = rect.tl  # Gives a Point object
 new_center = center - top_left 
-img[rect.slice] = cvh.rotate_image(
-    img[rect.slice], new_center, degrees, unit=cvh.AngleUnit.DEGREES
+img[rect.slice] = cvw.rotate_image(
+    img[rect.slice], new_center, degrees, unit=cvw.AngleUnit.DEGREES
 )
-cvh.rectangle(img, rect, cvh.Color.RANDOM)
+cvw.rectangle(img, rect, cvw.Color.RANDOM)
 
 cv.imshow("Image", img)
-cvh.wait_key(0)
+cvw.wait_key(0)
 ```
 We again follow the same approach. However, with the Contour class, we can
 simply call the bounding rect property. This yields a Rect object, which
@@ -129,21 +133,21 @@ has a center property. Convenient.
 Where we before were left with no (obvious) choice but to rotate the whole image,
 we can now simply slice the image at the rectangle, only rotating the figure itself.
 For this exact purpose, it doesn't make much different, but it is a demonstration.
-We find the new center from which to rotatet, and simply call the rotate image function. 
+We find the new center from which to rotate, and simply call the rotate image function. 
 We can here choose whether to use degrees or radians. Lastly we draw a rectangle with
 a random color.
 
 We get the following result.
 
-![alt text](https://raw.githubusercontent.com/anbergem/cvhelper/master/images/opencv.png)
+![alt text](https://raw.githubusercontent.com/anbergem/opencv_wrapper/master/images/helper.png)
 
 Not only is this a tad less tedious to write, but we are also easily able to 
-rotate only the relevant part of the circle by slicing. The contour, rectangle
+rotate only the relevant part of the circle by slicing¹. The contour, rectangle
 and point objects are also an ease to work with. 
 
 ### Other Area of Ease
 While not providing examples, there are many other parts of the OpenCV 
-that become an ease to work with, when using cvhelper. Areas include
+that become an ease to work with, when using opencv_wrapper. Areas include
 
 * Morphology 
 * Image normalization
@@ -151,4 +155,8 @@ that become an ease to work with, when using cvhelper. Areas include
 * Thresholding
 * Image smoothing
 
-
+¹Disclosure: The slicing is not that har do accomplish, from `x, y, w, h`. 
+We can create it like this
+```python
+our_slice = (slice(y, y+h), slice(x, x+w))
+```
