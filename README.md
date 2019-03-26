@@ -5,6 +5,7 @@
 [![Pypi version](https://img.shields.io/pypi/v/opencv_wrapper.svg?color=blue)](https://pypi.org/project/opencv-wrapper/)
 [![Pypi version](https://img.shields.io/github/license/anbergem/opencv_wrapper.svg)](https://pypi.org/project/opencv-wrapper/)
 [![](https://tokei.rs/b1/github/anbergem/opencv_wrapper)](https://github.com/Aaronepower/tokei)
+[![Documentation Status](https://readthedocs.org/projects/opencv-wrapper/badge/?version=latest)](https://opencv-wrapper.readthedocs.io/en/latest/?badge=latest)
 
 OpenCV Wrapper is a simpler wrapper for the `opencv-python` package. As the mentioned package only gives access to OpenCV functions, in a C++ style, it can be tedious to write. There is also no support for the OpenCV classes like Rect, Point etc. OpenCV Wrapper attempts to fix that.
 
