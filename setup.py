@@ -5,7 +5,7 @@ with open("README.md") as fh:
 
 setup(
     name="opencv-wrapper",
-    version="0.1.0",
+    version="0.1.1",
     packages=["opencv_wrapper"],
     author="Andreas Bergem",
     author_email="bergem.andreas@gmail.com",

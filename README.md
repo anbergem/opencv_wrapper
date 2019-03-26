@@ -132,7 +132,7 @@ has a center property. Convenient.
 
 Where we before were left with no (obvious) choice but to rotate the whole image,
 we can now simply slice the image at the rectangle, only rotating the figure itself.
-For this exact purpose, it doesn't make much different, but it is a demonstration.
+For this exact purpose, it doesn't make much difference, but it is a demonstration.
 We find the new center from which to rotate, and simply call the rotate image function. 
 We can here choose whether to use degrees or radians. Lastly we draw a rectangle with
 a random color.
@@ -155,7 +155,7 @@ that become an ease to work with, when using opencv_wrapper. Areas include
 * Thresholding
 * Image smoothing
 
-¹Disclosure: The slicing is not that har do accomplish, from `x, y, w, h`. 
+¹Disclosure: The slicing is not that hard to accomplish, from `x, y, w, h`. 
 We can create it like this
 ```python
 our_slice = (slice(y, y+h), slice(x, x+w))
