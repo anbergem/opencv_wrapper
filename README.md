@@ -1,14 +1,17 @@
 # Simple wrapper for opencv-python
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
+[![Python version](https://img.shields.io/pypi/pyversions/opencv_wrapper.svg)](https://pypi.org/project/opencv-wrapper/)
+[![Pypi version](https://img.shields.io/pypi/v/opencv_wrapper.svg?color=blue)](https://pypi.org/project/opencv-wrapper/)
+[![Pypi version](https://img.shields.io/github/license/anbergem/opencv_wrapper.svg)](https://pypi.org/project/opencv-wrapper/)
 
-opencv_wrapper is a simpler wrapper for the opencv-python package. As mentioned package only
+OpenCV Wrapper is a simpler wrapper for the `opencv-python` package. As mentioned package only
 gives access to OpenCV functions, in a C++ style, it can be tedious to write. There is
-also no support for the OpenCV classes like Rect, Point etc. opencv_wrapper attempts to fix that.
+also no support for the OpenCV classes like Rect, Point etc. OpenCV Wrapper attempts to fix that.
 
 The package is at an early state, and contributions are welcome! The contents of the package
 have been a demand-and-supply model, where functionality is added as new tedious things in
-opencv-python are found. Do not hesitate to file an issue, requesting new functionality or 
+`opencv-python` are found. Do not hesitate to file an issue, requesting new functionality or 
 enhancement proposals! 
 
 ## Installation

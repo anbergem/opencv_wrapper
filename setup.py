@@ -24,7 +24,7 @@ setup(
         "Topic :: Scientific/Engineering :: Image Recognition",
         "Typing :: Typed",
     ],
-    keywords="opencv",
-    install_requires=["numpy<=1.15.3", "opencv-python<=3.4.3.18"],
+    keywords="OpenCV",
+    install_requires=["numpy<=1.15.3", "opencv-python<4"],
     python_requires=">=3.7",
 )
