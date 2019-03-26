@@ -1,4 +1,4 @@
-from dataclasses import dataclass, astuple
+from dataclasses import dataclass
 from typing import Tuple, Union, Iterator, cast
 import builtins
 
@@ -8,6 +8,11 @@ import cv2 as cv
 
 @dataclass
 class Point:
+    """
+    Model class for a point. Point can be added, subtracted and iterated over, yielding
+    x, y.
+    """
+
     x: float
     y: float
 
@@ -29,14 +34,28 @@ class Point:
         return iter((self.x, self.y))
 
     @classmethod
-    def origo(cls):
+    def origin(cls) -> "Point":
+        """
+        :return: Return the origin point, Point(0, 0)
+        """
         return cls(0, 0)
+
+    @property
+    def norm(self) -> float:
+        """
+        Return the absolute L2 norm of the point. Alias for `cvw.norm(point)`.
+
+        :return: The absolute L2 norm of the point
+        """
+        from .misc_functions import norm as norm_func
+
+        return norm_func(self)
 
 
 CVPoint = Union[Point, Tuple[int, int]]
 
 
-@dataclass()
+@dataclass
 class Rect:
     """
     Model class of a rectangle.

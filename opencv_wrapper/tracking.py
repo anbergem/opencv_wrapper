@@ -14,6 +14,21 @@ def dense_optical_flow(
     gaussian_window: bool = True,
     initial_flow: np.ndarray = None,
 ) -> np.ndarray:
+    """
+    Calculate the dense optical flow between two frames, using the
+    Farnebäck method.
+
+    For further documentation on the parameters, see OpenCV documentation
+    for cv2.calcOpticalFlowFarnaback.
+
+    :param prev_frame: The initial frame
+    :param next_frame: The frame after `prev_frame`, with displacement.
+    :return: An image with the shape
+    """
+    if prev_frame.shape != next_frame.shape:
+        raise ValueError(
+            f"prev_frame and next_frame must have same dimensions: {prev_frame.shape}, {next_frame.shape}"
+        )
     flags = 0
     if initial_flow is not None:
         flags += cv.OPTFLOW_USE_INITIAL_FLOW

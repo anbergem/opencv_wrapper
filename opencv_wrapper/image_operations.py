@@ -8,12 +8,22 @@ from .model import Rect, Point, Contour
 
 
 class MorphShape(enum.Enum):
+    """
+    Enum for determining shape in morphological operations.
+
+    Alias for OpenCV's morph enums.
+    """
+
     RECT: int = cv.MORPH_RECT
     CROSS: int = cv.MORPH_CROSS
     CIRCLE: int = cv.MORPH_ELLIPSE
 
 
 class AngleUnit(enum.Enum):
+    """
+    Enum for which angle unit to use.
+    """
+
     RADIANS = enum.auto()
     DEGREES = enum.auto()
 
@@ -22,7 +32,7 @@ def find_external_contours(image: np.ndarray) -> Tuple[Contour, ...]:
     """
     Find the external contours in the `image`.
 
-    Alias for cv.findContours(image, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    Alias for `cv.findContours(image, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)`
 
     :param image: The image in with to find the contours
     :return: A tuple of Contour objects
@@ -36,7 +46,16 @@ def dilate(
     kernel_size,
     shape: MorphShape = MorphShape.RECT,
     iterations: int = 1,
-):
+) -> np.ndarray:
+    """
+    Dilate `image` with `kernel_size` and `shape`.
+
+    :param image: Image to be dilated
+    :param kernel_size: Kernel size to dilate with
+    :param shape: Shape of kernel
+    :param iterations: Number of iterations to perform dilation
+    :return: The dilated image
+    """
     _error_if_image_empty(image)
     return cv.dilate(
         image,
@@ -50,7 +69,16 @@ def erode(
     kernel_size,
     shape: MorphShape = MorphShape.RECT,
     iterations: int = 1,
-):
+) -> np.ndarray:
+    """
+    Erode `image` with `kernel_size` and `shape`.
+
+    :param image: Image to be eroded
+    :param kernel_size: Kernel size to erode with
+    :param shape: Shape of kernel
+    :param iterations: Number of iterations to perform erosion
+    :return: The eroded image
+    """
     _error_if_image_empty(image)
     return cv.erode(
         image,
@@ -65,6 +93,15 @@ def morph_open(
     shape: MorphShape = MorphShape.RECT,
     iterations=1,
 ) -> np.ndarray:
+    """
+    Morphologically open `image` with `kernel_size` and `shape`.
+
+    :param image: Image to be opened
+    :param kernel_size: Kernel size to open with
+    :param shape: Shape of kernel
+    :param iterations: Number of iterations to perform opening
+    :return: The opened image
+    """
     _error_if_image_empty(image)
     return cv.morphologyEx(
         image,
@@ -80,6 +117,15 @@ def morph_close(
     shape: MorphShape = MorphShape.RECT,
     iterations=1,
 ) -> np.ndarray:
+    """
+    Morphologically close `image` with `kernel_size` and `shape`.
+
+    :param image: Image to be closed
+    :param kernel_size: Kernel size to close with
+    :param shape: Shape of kernel
+    :param iterations: Number of iterations to perform closing
+    :return: The closed image
+    """
     _error_if_image_empty(image)
     return cv.morphologyEx(
         image,
@@ -90,6 +136,14 @@ def morph_close(
 
 
 def normalize(image: np.ndarray, min: int = 0, max: int = 255) -> np.ndarray:
+    """
+    Normalize image to range [`min`, `max`].
+
+    :param image: Image to be normalized
+    :param min: New minimum value of image
+    :param max: New maximum value of image
+    :return: The normalized image
+    """
     _error_if_image_empty(image)
     normalized = np.zeros_like(image)
     cv.normalize(image, normalized, max, min, cv.NORM_MINMAX)
@@ -124,32 +178,74 @@ def resize(
 
 
 def gray2bgr(image: np.ndarray) -> np.ndarray:
+    """
+    Convert image from gray to BGR
+
+    :param image: Image to be converted
+    :return: Converted image
+    """
     _error_if_image_empty(image)
+    _error_if_image_not_gray(image)
     return cv.cvtColor(image, cv.COLOR_GRAY2BGR)
 
 
 def bgr2gray(image: np.ndarray) -> np.ndarray:
+    """
+    Convert image from BGR to gray
+
+    :param image: Image to be converted
+    :return: Converted image
+    """
     _error_if_image_empty(image)
+    _error_if_image_not_color(image)
     return cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
 
 def bgr2hsv(image: np.ndarray) -> np.ndarray:
+    """
+    Convert image from BGR to HSV color space
+
+    :param image: Image to be converted
+    :return: Converted image
+    """
     _error_if_image_empty(image)
+    _error_if_image_not_color(image)
     return cv.cvtColor(image, cv.COLOR_BGR2HSV)
 
 
 def bgr2xyz(image: np.ndarray) -> np.ndarray:
+    """
+    Convert image from BGR to CIE XYZ color space
+
+    :param image: Image to be converted
+    :return: Converted image
+    """
     _error_if_image_empty(image)
+    _error_if_image_not_color(image)
     return cv.cvtColor(image, cv.COLOR_BGR2XYZ)
 
 
 def bgr2hls(image: np.ndarray) -> np.ndarray:
+    """
+    Convert image from BGR to HLS color space
+
+    :param image: Image to be converted
+    :return: Converted image
+    """
     _error_if_image_empty(image)
+    _error_if_image_not_color(image)
     return cv.cvtColor(image, cv.COLOR_BGR2HLS)
 
 
 def bgr2luv(image: np.ndarray) -> np.ndarray:
+    """
+    Convert image from BGR to CIE LUV color space
+
+    :param image: Image to be converted
+    :return: Converted image
+    """
     _error_if_image_empty(image)
+    _error_if_image_not_color(image)
     return cv.cvtColor(image, cv.COLOR_BGR2LUV)
 
 
@@ -219,6 +315,7 @@ def canny(
 ) -> np.ndarray:
     """
     Perform Canny's edge detection on `image`.
+
     :param image: The image to be processed.
     :param low_threshold: The lower threshold in the hysteresis thresholding.
     :param high_threshold: The higher threshold in the hysteresis thresholding.
@@ -248,15 +345,21 @@ def scale_contour_to_rect(contour: Contour, rect: Rect) -> Contour:
 
 
 def rotate_image(
-    image: np.ndarray,
-    center: Point,
-    angle: float,
-    scale: int = 1,
-    unit: AngleUnit = AngleUnit.RADIANS,
+    image: np.ndarray, center: Point, angle: float, unit: AngleUnit = AngleUnit.RADIANS
 ) -> np.ndarray:
+    """
+    Rotate `image` `angle` degrees at `center`. `unit` specifies if
+    `angle` is given in degrees or radians.
+
+    :param image: The image to be rotated.
+    :param center: The center of the rotation
+    :param angle: The angle to be rotated
+    :param unit: The unit of the angle
+    :return: The rotated image.
+    """
     if unit is AngleUnit.RADIANS:
         angle = 180 / np.pi * angle
-    rotation_matrix = cv.getRotationMatrix2D((*center,), angle, scale=scale)
+    rotation_matrix = cv.getRotationMatrix2D((*center,), angle, scale=1)
 
     if image.ndim == 2:
         return cv.warpAffine(image, rotation_matrix, image.shape[::-1])
@@ -273,3 +376,13 @@ def rotate_image(
 def _error_if_image_empty(image: np.ndarray) -> None:
     if image is None or image.size == 0:
         raise ValueError("Image is empty")
+
+
+def _error_if_image_not_color(image: np.ndarray) -> None:
+    if image.ndim != 3:
+        raise ValueError(f"Expected image with three channels: {image.ndim}")
+
+
+def _error_if_image_not_gray(image: np.ndarray) -> None:
+    if image.ndim != 2:
+        raise ValueError(f"Expected image with two channels: {image.ndim}")

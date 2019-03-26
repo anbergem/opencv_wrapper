@@ -2,6 +2,7 @@
 Convenience functions for reading videos.
 
 Usage:
+
 >>> import cv2 as cv
 >>> with load_video("path/to/file") as video:
 >>>    for frame in read_frames(video):
@@ -17,6 +18,10 @@ import numpy as np
 
 @contextmanager
 def load_video(filename: str):
+    """
+    Open the video file
+    :param filename:
+    """
     video = cv.VideoCapture(filename)
     if not video.isOpened():
         raise ValueError(f"Could not open video with filename {filename}")

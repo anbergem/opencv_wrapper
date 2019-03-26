@@ -139,6 +139,7 @@ def put_text(
 def draw_contour(image: np.ndarray, contour: Contour, color: CVColor, thickness=1):
     """
     Draw a contour on an image.
+
     :param image: Image to draw on
     :param contour: Contour to draw
     :param color: Color to draw
@@ -153,6 +154,7 @@ def draw_contours(
 ):
     """
     Draw multiple contours on an image
+
     :param image: Image to draw on
     :param contours: Contours to draw
     :param color: Color to draw with
@@ -168,10 +170,12 @@ def wait_key(delay: int) -> str:
     Wait for a key event infinitely (if `delay` is 0) or `delay` amount of milliseconds.
 
     An alias for cv.waitKey(delay) & 0xFF. See cv.waitKey(delay) for further documentation.
+    Comparison of the key pressed can be found by `ord(str)`. For example
+
+    >>> if wait_key(0) == ord('q'): continue
 
     :param delay: Amount of milliseconds to wait, or 0 for infinitely.
-    :return: The key pressed. Comparison of the key pressed can be found by `ord(str)`. For example
-             `if wait_key(0) == ord('q'): continue`
+    :return: The key pressed.
     """
     return cv.waitKey(delay) & 0xFF
 

@@ -6,31 +6,33 @@ import numpy as np
 from .model import Point, Rect
 
 
-def norm(input: Union[Point, np.ndarray]):
-    """Returns the L2 norm"""
+def norm(input: Union[Point, np.ndarray]) -> float:
+    """
+    Calculates the absolute L2 norm of the point or array.
+    :param input: The n-dimensional point
+    :return: The L2 norm of the n-dimensional point
+    """
     if isinstance(input, Point):
         return cv.norm((*input,))
     else:
         return cv.norm(input)
 
 
-def line_iterator(img: np.ndarray, p1: Point, p2: Point):
+def line_iterator(image: np.ndarray, p1: Point, p2: Point) -> np.ndarray:
     """
     Produces and array that consists of the coordinates and intensities of each pixel in a line between two points.
 
     Credit: https://stackoverflow.com/questions/32328179/opencv-3-0-python-lineiterator
 
-    Parameters:
-        -P1: a numpy array that consists of the coordinate of the first point (x,y)
-        -P2: a numpy array that consists of the coordinate of the second point (x,y)
-        -img: the image being processed
-
-    Returns:
-        -it: a numpy array that consists of the coordinates and intensities of each pixel in the radii (shape: [numPixels, 3], row = [x,y,intensity])
+    :param image: The image being processed
+    :param p1: The first point
+    :param p2: The second point
+    :return: An array that consists of the coordinates and intensities of each pixel on the line.
+             (shape: [numPixels, 3(5)], row = [x,y, intensity(b, g, r)]), for gray-scale(bgr) image.
     """
     # define local variables for readability
-    imageH = img.shape[0]
-    imageW = img.shape[1]
+    imageH = image.shape[0]
+    imageW = image.shape[1]
     # P1X = P1[0]
     # P1.y = P1[1]
     # P2X = P2[0]
@@ -44,7 +46,7 @@ def line_iterator(img: np.ndarray, p1: Point, p2: Point):
     dYa = np.abs(dY)
 
     # predefine numpy array for output based on distance between points
-    color_chls = 1 if img.ndim == 2 else 3
+    color_chls = 1 if image.ndim == 2 else 3
     itbuffer = np.empty(shape=(np.maximum(dYa, dXa), 2 + color_chls), dtype=np.int32)
     itbuffer.fill(np.nan)
 
@@ -88,8 +90,8 @@ def line_iterator(img: np.ndarray, p1: Point, p2: Point):
 
     # Get intensities from img ndarray
     # Get three values if color image
-    num_channels = 2 if img.ndim == 2 else slice(2, None, None)
-    itbuffer[:, num_channels] = img[itbuffer[:, 1], itbuffer[:, 0]]
+    num_channels = 2 if image.ndim == 2 else slice(2, None, None)
+    itbuffer[:, num_channels] = image[itbuffer[:, 1], itbuffer[:, 0]]
 
     return itbuffer
 
