@@ -1,7 +1,14 @@
+import sys
+
 from setuptools import setup
 
 with open("README.md") as fh:
     long_description = fh.read()
+
+requirements = ["numpy<=1.15.3", "opencv-python<4"]
+
+if sys.version_info[1] == 6:
+    requirements.append("dataclasses")
 
 setup(
     name="opencv-wrapper",
@@ -19,12 +26,13 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Image Recognition",
         "Typing :: Typed",
     ],
     keywords="OpenCV",
-    install_requires=["numpy<=1.15.3", "opencv-python<4"],
-    python_requires=">=3.7",
+    install_requires=requirements,
+    python_requires=">=3.6",
 )
