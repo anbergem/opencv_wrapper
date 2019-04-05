@@ -19,11 +19,40 @@ from .image_operations import _error_if_image_empty
 
 
 @contextmanager
-def load_video(filename: str):
+def load_camera(index: int = 0) -> Iterator[Any]:
+    """Open a camera for video capturing.
+
+    :param index: Index of the camera to open.
+
+                  For more details see `cv2.VideoCapture(index) documentation`_
+
+    .. _cv2.VideoCapture(index) documentation : https://docs.opencv.org/3.4.5/d8/dfe/classcv_1_1VideoCapture.html#a5d5f5dacb77bbebdcbfb341e3d4355c1
     """
-    Open the video file
-    :param filename:
+    video = cv.VideoCapture(index)
+    if not video.isOpened():
+        raise ValueError(f"Could not open camera with index {index}")
+    try:
+        yield video
+    finally:
+        video.release()
+
+
+@contextmanager
+def load_video(filename: str) -> Iterator[Any]:
     """
+    Open a video file
+
+    :param filename: It an be:
+
+                     * Name of video file
+                     * An image sequence
+                     * A URL of a video stream
+
+                     For more details see `cv2.VideoCapture(filename) documentation`_
+
+    .. _cv2.VideoCapture(filename) documentation: https://docs.opencv.org/3.4.3/d8/dfe/classcv_1_1VideoCapture.html#a85b55cf6a4a50451367ba96b65218ba1
+    """
+
     video = cv.VideoCapture(filename)
     if not video.isOpened():
         raise ValueError(f"Could not open video with filename {filename}")
@@ -36,7 +65,10 @@ def load_video(filename: str):
 def read_frames(
     video: cv.VideoCapture, start: int = 0, stop: Optional[int] = None, step: int = 1
 ) -> Iterator[np.ndarray]:
-    """
+    """Read frames of a video object.
+
+    Start, stop and step work as built-in range.
+
     :param video: Video object to read from.
     :param start: Frame number to skip to.
     :param stop: Frame number to stop reading, exclusive.
