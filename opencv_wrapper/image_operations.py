@@ -37,8 +37,7 @@ def find_external_contours(image: np.ndarray) -> Tuple[Contour, ...]:
     :param image: The image in with to find the contours
     :return: A tuple of Contour objects
     """
-    rets = cv.findContours(image, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-    contours = rets[1]
+    contours, _ = cv.findContours(image, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)[-2:]
     contours = contours if contours is not None else ()
     return (*map(Contour, contours),)
 
