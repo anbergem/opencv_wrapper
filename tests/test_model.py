@@ -130,11 +130,6 @@ class TestContour:
     def cv_mock(self, mocker):
         return mocker.patch("opencv_wrapper.model.cv")
 
-    @pytest.fixture
-    def contour(self, mocker):
-        points = mocker.Mock()
-        return Contour(points)
-
     def test_bounding_rect(self, cv_mock, contour):
         cv_mock.boundingRect.return_value = 0, 0, 0, 0
         contour.bounding_rect
