@@ -12,7 +12,7 @@ if sys.version_info[1] == 6:
 
 setup(
     name="opencv-wrapper",
-    version="0.1.1",
+    version="0.2.0",
     packages=["opencv_wrapper"],
     author="Andreas Bergem",
     author_email="bergem.andreas@gmail.com",
