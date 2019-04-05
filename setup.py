@@ -5,7 +5,7 @@ from setuptools import setup
 with open("README.md") as fh:
     long_description = fh.read()
 
-requirements = ["numpy<=1.15.3", "opencv-python<4"]
+requirements = ["numpy<=1.15.3", "opencv-python<=4.0.1"]
 
 if sys.version_info[1] == 6:
     requirements.append("dataclasses")
