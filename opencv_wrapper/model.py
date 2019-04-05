@@ -119,6 +119,32 @@ class Rect:
             )
         raise ValueError("Must be called with a point or a 2-tuple (x, y)")
 
+    def __or__(self, other):
+        # Same as OpenCV's implementation
+        if self.empty():
+            return other
+        elif other.empty():
+            return self
+
+        x = min(self.x, other.x)
+        y = min(self.y, other.y)
+        width = max(self.x + self.width, other.x + other.width) - x
+        height = max(self.y + self.height, other.y + other.height) - y
+
+        return Rect(x, y, width, height)
+
+    def __and__(self, other):
+        # Same as OpenCV's implementation
+        x = max(self.x, other.x)
+        y = max(self.y, other.y)
+        width = min(self.x + self.width, other.x + other.width) - x
+        height = min(self.y + self.height, other.y + other.height) - y
+
+        if width <= 0 or height <= 0:
+            return None
+
+        return Rect(x, y, width, height)
+
     @property
     def tl(self) -> Point:
         """
