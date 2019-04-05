@@ -1,9 +1,12 @@
-from dataclasses import dataclass
-from typing import Tuple, Union, Iterator, cast
 import builtins
+import cmath
+from dataclasses import dataclass
+from typing import Tuple, Union, Iterator
 
-import numpy as np
 import cv2 as cv
+import numpy as np
+
+PairOfFloats = Tuple[float, float]
 
 
 @dataclass
@@ -32,6 +35,18 @@ class Point:
 
     def __iter__(self) -> Iterator[float]:
         return iter((self.x, self.y))
+
+    def cartesian(self) -> PairOfFloats:
+        """
+        :return: The point represented as cartesian coordinates
+        """
+        return self.x, self.y
+
+    def polar(self) -> PairOfFloats:
+        """
+        :return: The point represented as polar coordinates
+        """
+        return cmath.polar(complex(self.x, self.y))
 
     @classmethod
     def origin(cls) -> "Point":
@@ -140,17 +155,6 @@ class Rect:
         return Point(self.x + (self.width / 2), self.y + (self.height / 2))
 
     @property
-    def aspoints(self) -> Tuple[Tuple[float, float], Tuple[float, float]]:
-        """
-        Yields the rectangle as top-left and bottom-right points, as used in cv2.rectangle.
-
-        :return: The top-left and bottom-right corners of the rectangle as two-tuples.
-        """
-        tl = cast(Tuple[float, float], tuple(self.tl))
-        br = cast(Tuple[float, float], tuple(self.br))
-        return tl, br
-
-    @property
     def area(self) -> float:
         """
         :return: The area of the rectangle
@@ -171,6 +175,19 @@ class Rect:
             slice(int(self.y), int(self.y) + int(self.height)),
             slice(int(self.x), int(self.x) + int(self.width)),
         )
+
+    def cartesian_corners(self) -> Tuple[PairOfFloats, PairOfFloats]:
+        """Yields the rectangle as top-left and bottom-right points, as used in cv2.rectangle.
+
+        :return: The top-left and bottom-right corners of the rectangle as cartesian two-tuples.
+        """
+        return self.tl.cartesian(), self.br.cartesian()
+
+    def empty(self) -> bool:
+        """
+        :return: Whether or not the rectangle is empty.
+        """
+        return self.width <= 0 or self.height <= 0
 
 
 CVRect = Union[Rect, Tuple[int, int, int, int]]

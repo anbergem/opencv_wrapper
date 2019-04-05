@@ -1,13 +1,13 @@
-from typing import Union, Tuple, Sequence
-from enum import Enum, auto
 import warnings
+from enum import Enum, auto
+from typing import Union, Tuple, Sequence
 
 import cv2 as cv
 import numpy as np
 
+from .misc_functions import line_iterator
 from .model import Point, CVPoint, Rect, Contour, CVRect
 from .utils import CVColor, _ensure_color_int
-from .misc_functions import line_iterator
 
 
 class LineStyle(Enum):
@@ -94,7 +94,7 @@ def rectangle(
     color = _ensure_color_int(color)
     rect = Rect(*map(int, rect))
     if line_style is LineStyle.SOLID:
-        cv.rectangle(image, *rect.aspoints, color, thickness)
+        cv.rectangle(image, *rect.cartesian_corners(), color, thickness)
     elif line_style is LineStyle.DASHED:
         line(image, rect.tl, rect.tr, color, line_style=line_style)
         line(image, rect.bl, rect.br, color, line_style=line_style)
