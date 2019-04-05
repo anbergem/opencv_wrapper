@@ -1,7 +1,7 @@
 import builtins
 import cmath
 from dataclasses import dataclass
-from typing import Tuple, Union, Iterator
+from typing import Tuple, Union, Iterator, Optional, Any, Dict
 
 import cv2 as cv
 import numpy as np
@@ -11,27 +11,36 @@ PairOfFloats = Tuple[float, float]
 
 @dataclass
 class Point:
-    """
-    Model class for a point. Point can be added, subtracted and iterated over, yielding
-    x, y.
+    """Model class for a point.
+
+    Points can be negated, added, subtracted and iterated over, yielding x, y.
     """
 
     x: float
     y: float
 
-    def __add__(self, other):
+    def __add__(self, other: Any) -> "Point":
         if self.__class__ is other.__class__:
             return Point(self.x + other.x, self.y + other.y)
         elif hasattr(other, "__len__") and len(other) == 2:
             return Point(self.x + other[0], self.y + other[1])
         return NotImplemented
 
-    def __sub__(self, other):
+    def __radd__(self, other: Any) -> "Point":
+        return self + other
+
+    def __sub__(self, other: Any) -> "Point":
         if self.__class__ is other.__class__:
             return Point(self.x - other.x, self.y - other.y)
         elif hasattr(other, "__len__") and len(other) == 2:
             return Point(self.x - other[0], self.y - other[1])
         return NotImplemented
+
+    def __rsub__(self, other: Any) -> "Point":
+        return -self + other
+
+    def __neg__(self) -> "Point":
+        return Point(-self.x, -self.y)
 
     def __iter__(self) -> Iterator[float]:
         return iter((self.x, self.y))
@@ -105,18 +114,20 @@ class Rect:
         self.y = y - padding
         self.width = width + padding * 2
         self.height = height + padding * 2
+        if self.width < 0 or self.height < 0:
+            raise ValueError(f"Rect must have width and height >= 0: {self}")
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[float]:
         return iter((self.x, self.y, self.width, self.height))
 
-    def __truediv__(self, other):
+    def __truediv__(self, other: float) -> "Rect":
         if isinstance(other, (int, float)):
             return Rect(
                 self.x / other, self.y / other, self.width / other, self.height / other
             )
         return NotImplemented
 
-    def __floordiv__(self, other):
+    def __floordiv__(self, other: float) -> "Rect":
         if isinstance(other, int):
             return Rect(
                 self.x // other,
@@ -126,17 +137,20 @@ class Rect:
             )
         return NotImplemented
 
-    def __contains__(self, point: CVPoint):
+    def __contains__(self, point: CVPoint) -> bool:
         if isinstance(point, tuple):
             point = Point(*point)
         if isinstance(point, Point):
             return (
-                self.x <= point.x <= self.x + self.width
-                and self.y <= point.y <= self.y + self.height
+                self.x <= point.x < self.x + self.width
+                and self.y <= point.y < self.y + self.height
             )
         raise ValueError("Must be called with a point or a 2-tuple (x, y)")
 
-    def __or__(self, other):
+    def __or__(self, other: "Rect") -> "Rect":
+        if self.__class__ is not other.__class__:
+            return NotImplemented
+
         # Same as OpenCV's implementation
         if self.empty():
             return other
@@ -150,7 +164,10 @@ class Rect:
 
         return Rect(x, y, width, height)
 
-    def __and__(self, other):
+    def __and__(self, other: "Rect") -> Optional["Rect"]:
+        if self.__class__ is not other.__class__:
+            return NotImplemented
+
         # Same as OpenCV's implementation
         x = max(self.x, other.x)
         y = max(self.y, other.y)
@@ -235,22 +252,19 @@ class Rect:
 CVRect = Union[Rect, Tuple[int, int, int, int]]
 
 
+@dataclass
 class Contour:
-    def __init__(self, points):
-        """
-        :param points: points from cv.findContours()
-        """
-        self._points = points
-        self._moments = None
-        self._bounding_rect = None
+    """Model class for a contour.
 
-    @property
-    def points(self) -> np.ndarray:
-        """Return the contour points as would be returned from cv.findContours().
+    The points come from cv2.findContours(). Using
+    :func:`.find_external_contours` is preferred.
+    """
 
-        :return: The contour points.
-        """
-        return self._points
+    points: np.ndarray
+
+    def __post_init__(self) -> None:
+        self._moments: Optional[Dict[str, float]] = None
+        self._bounding_rect: Optional[Rect] = None
 
     @property
     def area(self) -> float:
@@ -264,7 +278,9 @@ class Contour:
 
     @property
     def bounding_rect(self) -> Rect:
-        """Return the bounding rectangle around the contour. Uses cv.boundingRect(points).
+        """Return the bounding rectangle around the contour.
+
+        Uses cv2.boundingRect(points).
 
         :return: The bounding rectangle of the contour
         """
@@ -274,24 +290,26 @@ class Contour:
 
     @property
     def center(self) -> Point:
-        """Return the center point of the area. Due to skewed densities, the center
+        """Return the center point of the area.
+
+        Due to skewed densities, the center
         of the bounding rectangle is preferred to the center from moments.
 
         :return: The center of the bounding rectangle
         """
         return self.bounding_rect.center
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.points)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: Any) -> Union[np.ndarray, float]:
         if isinstance(key, int):
             return self.points[key, 0]
         if len(key) > 2:
             raise ValueError(f"Too many indices: {len(key)}")
         return self.points[key[0], 0, key[1]]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: Any, value: float) -> None:
         if isinstance(key, int):
             self.points[key, 0] = value
         if len(key) > 2:
