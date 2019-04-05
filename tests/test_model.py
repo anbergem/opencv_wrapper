@@ -123,3 +123,32 @@ class TestRect:
     )
     def test_contains(self, rect, point, expected):
         assert (point in rect) is expected
+
+
+class TestContour:
+    @pytest.fixture
+    def cv_mock(self, mocker):
+        return mocker.patch("opencv_wrapper.model.cv")
+
+    @pytest.fixture
+    def contour(self, mocker):
+        points = mocker.Mock()
+        return Contour(points)
+
+    def test_bounding_rect(self, cv_mock, contour):
+        cv_mock.boundingRect.return_value = 0, 0, 0, 0
+        contour.bounding_rect
+        cv_mock.boundingRect.assert_called_once_with(contour.points)
+
+        # Test caching
+        contour.bounding_rect
+        cv_mock.boundingRect.assert_called_once()
+
+    def test_moments(self, mocker, cv_mock, contour):
+        cv_mock.moments.return_value = mocker.MagicMock()
+        contour.area
+        cv_mock.moments.assert_called_once()
+
+        # Test caching
+        contour.area
+        cv_mock.moments.assert_called_once()
