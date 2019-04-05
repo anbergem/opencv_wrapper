@@ -268,11 +268,32 @@ def blur_median(image: np.ndarray, kernel_size: int = 3) -> np.ndarray:
     return cv.medianBlur(image, kernel_size)
 
 
-def threshold_adaptive(image: np.ndarray, block_size: int, c: int = 0) -> np.ndarray:
+def threshold_adaptive(
+    image: np.ndarray,
+    block_size: int,
+    c: int = 0,
+    *,
+    weighted: bool = True,
+    inverse: bool = False,
+) -> np.ndarray:
+    """Adaptive thresholding of `image`, using a (weighted) local mean.
+
+    A local threshold value is determined for each `block_size x block_size` window.
+    If `weighted` is true, the gaussian weighted mean is used. If not, the mean is used.
+
+    :param image: Input image.
+    :param block_size: The size of the local windows.
+    :param c: Constant to be subtracted from the (weighted) mean.
+    :param weighted: Whether or not to weight the mean with a gaussian weighting.
+    :param inverse: Whether or not to inverse the image output.
+    :return: The thresholded image.
+    """
     _error_if_image_empty(image)
-    return cv.adaptiveThreshold(
-        image, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, block_size, c
-    )
+
+    method = cv.ADAPTIVE_THRESH_GAUSSIAN_C if weighted else cv.ADAPTIVE_THRESH_MEAN_C
+    flags = cv.THRESH_BINARY_INV if inverse else cv.THRESH_BINARY
+
+    return cv.adaptiveThreshold(image, 255, method, flags, block_size, c)
 
 
 def threshold_otsu(
@@ -310,7 +331,7 @@ def canny(
     image: np.ndarray,
     low_threshold: float,
     high_threshold: float,
-    high_pass_size: int,
+    high_pass_size: int = 3,
     l2_gradient=True,
 ) -> np.ndarray:
     """
