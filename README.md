@@ -15,9 +15,9 @@ have been a demand-and-supply model, where functionality is added as new tedious
 enhancement proposals! 
 
 ## Installation
-Installation is by the python package manager, pip. 
+Getting started is easy, using pip or pipenv! 
 ```bash
-pip install opencv-wrapper
+pip(env) install opencv-wrapper
 ```
 This also installs the dependencies `opencv-python` and `numpy`, if not already present.
 
