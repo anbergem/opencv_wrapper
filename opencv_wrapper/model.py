@@ -72,8 +72,16 @@ CVPoint = Union[Point, Tuple[int, int]]
 
 @dataclass
 class Rect:
-    """
-    Model class of a rectangle.
+    """Model class of a rectangle.
+
+    Rectangles can be iterated over, yielding x, y, width, height.
+
+    Rectangles can also be divided. The division is applied to x, y, the width
+    and the height of the rectangle. The makes the rectangle fit to an
+    image shrinked by the same factor.
+
+    A test whether or not a point is located inside the rectangle can be checked
+    by the `in` keyword: `if point in rect`.
     """
 
     x: float
@@ -84,6 +92,15 @@ class Rect:
     def __init__(
         self, x: float, y: float, width: float, height: float, *, padding: float = 0
     ):
+        """If padding is given, the rectangle will be `padding` pixels larger in each
+        of its sides. The padding can be negative.
+
+        :param x: The top-left x coordinate.
+        :param y: The top-left y coordinate.
+        :param width: The width of the rectangle.
+        :param height: The height of the rectangle.
+        :param padding: The padding to be applied to the rectangle.
+        """
         self.x = x - padding
         self.y = y - padding
         self.width = width + padding * 2
@@ -183,17 +200,16 @@ class Rect:
     @property
     def area(self) -> float:
         """
-        :return: The area of the rectangle
+        :return: The area of the rectangle.
         """
         return self.width * self.height
 
     @property
     def slice(self) -> Tuple[builtins.slice, builtins.slice]:
-        """
-        Creates a slice of the rectangle, to be used on a 2-D numpy array-
+        """Creates a slice of the rectangle, to be used on a 2-D numpy array.
 
         For example `image[rect.slice] = 255` will fill the area represented by
-        the rectangle as white, in a gray-scale image.
+        the rectangle as white, in a gray-scale, uint8 image.
 
         :return: The slice of the rectangle.
         """
@@ -230,8 +246,7 @@ class Contour:
 
     @property
     def points(self) -> np.ndarray:
-        """
-        Return the contour points as would be returned from cv.findContours().
+        """Return the contour points as would be returned from cv.findContours().
 
         :return: The contour points.
         """
@@ -239,8 +254,7 @@ class Contour:
 
     @property
     def area(self) -> float:
-        """
-        Return the area computed from cv.moments(points).
+        """Return the area computed from cv.moments(points).
 
         :return: The area of the contour
         """
@@ -250,8 +264,7 @@ class Contour:
 
     @property
     def bounding_rect(self) -> Rect:
-        """
-        Return the bounding rectangle around the contour. Uses cv.boundingRect(points).
+        """Return the bounding rectangle around the contour. Uses cv.boundingRect(points).
 
         :return: The bounding rectangle of the contour
         """
@@ -261,8 +274,7 @@ class Contour:
 
     @property
     def center(self) -> Point:
-        """
-        Return the center point of the area. Due to skewed densities, the center
+        """Return the center point of the area. Due to skewed densities, the center
         of the bounding rectangle is preferred to the center from moments.
 
         :return: The center of the bounding rectangle

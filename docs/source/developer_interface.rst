@@ -48,5 +48,9 @@ Video
 .. automodule:: opencv_wrapper.video
     :members:
 
+
+Miscellaneous Functions
+-----------------------
+
 .. automodule:: opencv_wrapper.misc_functions
     :members:

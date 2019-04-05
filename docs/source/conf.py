@@ -12,9 +12,10 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
-import mozilla_sphinx_theme
 import os
+import sys
+
+import mozilla_sphinx_theme
 
 # Mozilla theme
 html_theme_path = [os.path.dirname(mozilla_sphinx_theme.__file__)]
@@ -113,6 +114,7 @@ exclude_patterns = []
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
 
+autoclass_content = "both"
 
 # -- Options for HTML output ----------------------------------------------
 
