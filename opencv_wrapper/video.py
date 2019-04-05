@@ -10,10 +10,12 @@ Usage:
 >>>        cv.waitKey(1)
 """
 from contextlib import contextmanager
-from typing import Optional, Iterator
+from typing import Optional, Iterator, Any
 
 import cv2 as cv
 import numpy as np
+
+from .image_operations import _error_if_image_empty
 
 
 @contextmanager
@@ -89,3 +91,69 @@ def read_frames(
 
             if not next_ok:
                 return
+
+
+class VideoWriter(object):
+    """
+    A video writer for writing videos, using OpenCV's `cv.VideoWriter`.
+
+    The video writer is lazy, in that it waits to receive the first frame, before determining
+    the frame size for the video writer. This is in contrast to OpenCV's video writer, which
+    expects a frame size up front.
+    """
+
+    def __init__(
+        self, filename: str, fps: int = None, capture: Any = None, fourcc: str = "MJPG"
+    ):
+        """
+        Either `fps` or `capture` must be provided.
+        
+        For additional documentation, see `cv2.VideoWriter documentation`_
+
+        .. _cv2.VideoWriter documentation: https://docs.opencv.org/3.4.5/dd/d9e/classcv_1_1VideoWriter.html
+
+        :param filename: Name of the output video file.
+        :param fps: Framerate of the created video stream.
+        :param capture: A capture object from cv.VideoCapture or :func:`load_video`. Used to retrieve
+                        fps if `fps` is not provided.
+        :param fourcc: 4-character code of codec used to compress the frames. See
+                       `documentation <https://docs.opencv.org/3.4.5/dd/d9e/classcv_1_1VideoWriter.html#ac3478f6257454209fa99249cc03a5c59>`_
+        """
+        self.filename = filename
+        self.fourcc = fourcc
+
+        if fps is not None:
+            self.fps = fps
+        elif capture is not None:
+            self.fps = capture.get(cv.CAP_PROP_FPS)
+        else:
+            raise ValueError("Either `fps` or `capture` must be provided")
+
+        self.writer = None
+        self.frame_shape = None
+
+    def write(self, frame):
+        """Write a frame to the video.
+
+        The frame must be the same size each time the frame is written.
+
+        :param frame: Image to be written
+        """
+        _error_if_image_empty(frame)
+        if self.writer is None:
+            self.frame_shape = frame.shape
+            self.writer = cv.VideoWriter()
+            self.writer.open(
+                self.filename,
+                cv.VideoWriter_fourcc(*self.fourcc),
+                self.fps,
+                (frame.shape[1], frame.shape[0]),
+                frame.ndim == 3,
+            )
+        else:
+            if frame.shape != self.frame_shape:
+                raise ValueError(
+                    f"frame.shape {frame.shape} does not match previous shape {self.frame_shape}"
+                )
+        # Write to video
+        self.writer.write(frame)
