@@ -19,3 +19,15 @@ def image(mocker):
     img.__len__.return_value = 1
     img.size.return_value = 1
     return img
+
+
+@pytest.fixture
+def gray_image(image):
+    image.ndim = 2
+    return image
+
+
+@pytest.fixture
+def color_image(image):
+    image.ndim = 3
+    return image
