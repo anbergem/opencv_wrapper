@@ -152,13 +152,16 @@ def normalize(
 
 def resize(
     image: np.ndarray,
+    *,
     factor: Optional[int] = None,
     shape: Optional[Tuple[int, ...]] = None,
 ) -> np.ndarray:
-    """
-    Resize an image with the given factor. A factor of 2 gives an image of half the size.
+    """Resize an image with the given factor or shape.
 
-    If the image has 4 dimensions, it is assumed to be a series of images.
+    Either shape or factor must be provided.
+    Using `factor` of 2 gives an image of half the size.
+    Using `shape` gives an image of the given shape.
+
     :param image: Image to resize
     :param factor: Shrink factor. A factor of 2 halves the image size.
     :param shape: Output image size.
@@ -178,8 +181,7 @@ def resize(
 
 
 def gray2bgr(image: np.ndarray) -> np.ndarray:
-    """
-    Convert image from gray to BGR
+    """Convert image from gray to BGR
 
     :param image: Image to be converted
     :return: Converted image
@@ -190,8 +192,7 @@ def gray2bgr(image: np.ndarray) -> np.ndarray:
 
 
 def bgr2gray(image: np.ndarray) -> np.ndarray:
-    """
-    Convert image from BGR to gray
+    """Convert image from BGR to gray
 
     :param image: Image to be converted
     :return: Converted image
@@ -202,8 +203,7 @@ def bgr2gray(image: np.ndarray) -> np.ndarray:
 
 
 def bgr2hsv(image: np.ndarray) -> np.ndarray:
-    """
-    Convert image from BGR to HSV color space
+    """Convert image from BGR to HSV color space
 
     :param image: Image to be converted
     :return: Converted image
@@ -214,8 +214,7 @@ def bgr2hsv(image: np.ndarray) -> np.ndarray:
 
 
 def bgr2xyz(image: np.ndarray) -> np.ndarray:
-    """
-    Convert image from BGR to CIE XYZ color space
+    """Convert image from BGR to CIE XYZ color space
 
     :param image: Image to be converted
     :return: Converted image
@@ -226,8 +225,7 @@ def bgr2xyz(image: np.ndarray) -> np.ndarray:
 
 
 def bgr2hls(image: np.ndarray) -> np.ndarray:
-    """
-    Convert image from BGR to HLS color space
+    """Convert image from BGR to HLS color space
 
     :param image: Image to be converted
     :return: Converted image
@@ -238,8 +236,7 @@ def bgr2hls(image: np.ndarray) -> np.ndarray:
 
 
 def bgr2luv(image: np.ndarray) -> np.ndarray:
-    """
-    Convert image from BGR to CIE LUV color space
+    """Convert image from BGR to CIE LUV color space
 
     :param image: Image to be converted
     :return: Converted image
@@ -252,7 +249,9 @@ def bgr2luv(image: np.ndarray) -> np.ndarray:
 def blur_gaussian(
     image: np.ndarray, kernel_size: int = 3, sigma_x=None, sigma_y=None
 ) -> np.ndarray:
+
     _error_if_image_empty(image)
+
     if sigma_x is None:
         sigma_x = 0
     if sigma_y is None:
@@ -315,15 +314,22 @@ def threshold_binary(
     return img
 
 
-def threshold_tozero(image: np.ndarray, value: int, max_value: int = 255) -> np.ndarray:
+def threshold_tozero(
+    image: np.ndarray, value: int, max_value: int = 255, inverse: bool = False
+) -> np.ndarray:
     _error_if_image_empty(image)
-    _, img = cv.threshold(image, value, max_value, cv.THRESH_TOZERO)
+    flags = cv.THRESH_TOZERO_INV if inverse else cv.THRESH_TOZERO
+    _, img = cv.threshold(image, value, max_value, flags)
     return img
 
 
-def threshold_otsu_tozero(image: np.ndarray, max_value: int = 255) -> np.ndarray:
+def threshold_otsu_tozero(
+    image: np.ndarray, max_value: int = 255, inverse: bool = False
+) -> np.ndarray:
     _error_if_image_empty(image)
-    _, img = cv.threshold(image, 0, max_value, cv.THRESH_OTSU | cv.THRESH_TOZERO)
+    flags = cv.THRESH_TOZERO_INV if inverse else cv.THRESH_TOZERO
+    flags += cv.THRESH_OTSU
+    _, img = cv.threshold(image, 0, max_value, flags)
     return img
 
 
