@@ -15,4 +15,7 @@ def contour(points):
 
 @pytest.fixture
 def image(mocker):
-    return mocker.MagicMock()
+    img = mocker.MagicMock()
+    img.__len__.return_value = 1
+    img.size.return_value = 1
+    return img
