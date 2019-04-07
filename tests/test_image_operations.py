@@ -14,6 +14,10 @@ from opencv_wrapper.image_operations import (
     resize,
     blur_gaussian,
     blur_median,
+    threshold_otsu,
+    threshold_binary,
+    threshold_tozero,
+    threshold_adaptive,
 )
 
 functions = inspect.getmembers(opencv_wrapper.image_operations, inspect.isfunction)
@@ -21,7 +25,9 @@ functions = inspect.getmembers(opencv_wrapper.image_operations, inspect.isfuncti
 
 @pytest.fixture
 def cv_mock(mocker):
-    return mocker.patch("opencv_wrapper.image_operations.cv")
+    mock = mocker.patch("opencv_wrapper.image_operations.cv")
+    mock.threshold.return_value = (None, None)
+    return mock
 
 
 @pytest.fixture
@@ -42,6 +48,11 @@ def _error_not_color(mocker):
 @pytest.fixture
 def _error_not_gray(mocker):
     return mocker.patch("opencv_wrapper.image_operations._error_if_image_not_gray")
+
+
+@pytest.fixture
+def _wrong_dtype_func(mocker):
+    return mocker.patch("opencv_wrapper.image_operations._error_if_image_wrong_dtype")
 
 
 def test_bounding_rect_opencv3x(cv_mock, image, contour, points):
@@ -239,3 +250,145 @@ def test_blur_median(image, kernel_size, cv_mock, _empty_func):
 
     _empty_func.assert_called_once()
     cv_mock.medianBlur.assert_called_once_with(image, kernel_size)
+
+
+def test_threshold_binary(
+    mocker, image_uint8, cv_mock, np_mock, _empty_func, _wrong_dtype_func
+):
+    value = mocker.Mock()
+    max_value = mocker.Mock()
+
+    threshold_binary(image_uint8, value, max_value)
+
+    _empty_func.assert_called_once_with(image_uint8)
+    _wrong_dtype_func.assert_called_once_with(
+        image_uint8, [np_mock.float32, np_mock.uint8]
+    )
+
+    flags = cv_mock.THRESH_BINARY
+    cv_mock.threshold.assert_called_once_with(image_uint8, value, max_value, flags)
+
+
+def test_threshold_binary_inverse(
+    mocker, image_uint8, cv_mock, np_mock, _empty_func, _wrong_dtype_func
+):
+    value = mocker.Mock()
+    max_value = mocker.Mock()
+
+    threshold_binary(image_uint8, value, max_value, inverse=True)
+
+    _empty_func.assert_called_once_with(image_uint8)
+    _wrong_dtype_func.assert_called_once_with(
+        image_uint8, [np_mock.float32, np_mock.uint8]
+    )
+
+    flags = cv_mock.THRESH_BINARY_INV
+    cv_mock.threshold.assert_called_once_with(image_uint8, value, max_value, flags)
+
+
+def test_threshold_tozero(
+    mocker, image_uint8, cv_mock, np_mock, _empty_func, _wrong_dtype_func
+):
+    value = mocker.Mock()
+    max_value = mocker.Mock()
+
+    threshold_tozero(image_uint8, value, max_value)
+
+    _empty_func.assert_called_once_with(image_uint8)
+    _wrong_dtype_func.assert_called_once_with(
+        image_uint8, [np_mock.float32, np_mock.uint8]
+    )
+
+    flags = cv_mock.THRESH_TOZERO
+    cv_mock.threshold.assert_called_once_with(image_uint8, value, max_value, flags)
+
+
+def test_threshold_tozero_inverse(
+    mocker, image_uint8, cv_mock, np_mock, _empty_func, _wrong_dtype_func
+):
+    value = mocker.Mock()
+    max_value = mocker.Mock()
+
+    threshold_tozero(image_uint8, value, max_value, inverse=True)
+
+    _empty_func.assert_called_once_with(image_uint8)
+    _wrong_dtype_func.assert_called_once_with(
+        image_uint8, [np_mock.float32, np_mock.uint8]
+    )
+
+    flags = cv_mock.THRESH_TOZERO_INV
+    cv_mock.threshold.assert_called_once_with(image_uint8, value, max_value, flags)
+
+
+def test_threshold_otsu(
+    mocker, image_uint8, cv_mock, np_mock, _empty_func, _wrong_dtype_func
+):
+    max_value = mocker.Mock()
+
+    threshold_otsu(image_uint8, max_value)
+
+    _empty_func.assert_called_once_with(image_uint8)
+    _wrong_dtype_func.assert_called_once_with(
+        image_uint8, [np_mock.float32, np_mock.uint8]
+    )
+
+    flags = cv_mock.THRESH_BINARY
+    # implementation uses iadd, not add, has to be same when mocking
+    flags += cv_mock.THRESH_OTSU
+    cv_mock.threshold.assert_called_once_with(image_uint8, 0, max_value, flags)
+
+
+def test_threshold_otsu_inverse(
+    mocker, image_uint8, cv_mock, np_mock, _empty_func, _wrong_dtype_func
+):
+    max_value = mocker.Mock()
+
+    threshold_otsu(image_uint8, max_value, inverse=True)
+
+    _empty_func.assert_called_once_with(image_uint8)
+    _wrong_dtype_func.assert_called_once_with(
+        image_uint8, [np_mock.float32, np_mock.uint8]
+    )
+
+    flags = cv_mock.THRESH_BINARY_INV
+    # implementation uses iadd, not add, has to be same when mocking
+    flags += cv_mock.THRESH_OTSU
+    cv_mock.threshold.assert_called_once_with(image_uint8, 0, max_value, flags)
+
+
+def test_adaptive_threshold(
+    mocker, image_uint8, cv_mock, np_mock, _empty_func, _wrong_dtype_func
+):
+    block_size = mocker.Mock()
+    c = mocker.Mock()
+
+    threshold_adaptive(image_uint8, block_size, c, inverse=True)
+
+    _empty_func.assert_called_once_with(image_uint8)
+    _wrong_dtype_func.assert_called_once_with(image_uint8, [np_mock.uint8])
+
+    method = cv_mock.ADAPTIVE_THRESH_GAUSSIAN_C
+    # implementation uses iadd, not add, has to be same when mocking
+    flags = cv_mock.THRESH_BINARY_INV
+    cv_mock.adaptiveThreshold.assert_called_once_with(
+        image_uint8, 255, method, flags, block_size, c
+    )
+
+
+def test_adaptive_threshold2(
+    mocker, image_uint8, cv_mock, np_mock, _empty_func, _wrong_dtype_func
+):
+    block_size = mocker.Mock()
+    c = mocker.Mock()
+
+    threshold_adaptive(image_uint8, block_size, c, weighted=False)
+
+    _empty_func.assert_called_once_with(image_uint8)
+    _wrong_dtype_func.assert_called_once_with(image_uint8, [np_mock.uint8])
+
+    method = cv_mock.ADAPTIVE_THRESH_MEAN_C
+    # implementation uses iadd, not add, has to be same when mocking
+    flags = cv_mock.THRESH_BINARY
+    cv_mock.adaptiveThreshold.assert_called_once_with(
+        image_uint8, 255, method, flags, block_size, c
+    )

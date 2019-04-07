@@ -31,3 +31,8 @@ def gray_image(image):
 def color_image(image):
     image.ndim = 3
     return image
+
+
+@pytest.fixture
+def image_uint8(image, np_mock):
+    image.dtype = np_mock.uint8

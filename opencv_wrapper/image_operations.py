@@ -1,10 +1,10 @@
 import enum
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Sequence
 
 import cv2 as cv
 import numpy as np
 
-from .model import Rect, Point, Contour
+from .model import Point, Contour
 
 
 class MorphShape(enum.Enum):
@@ -288,6 +288,7 @@ def threshold_adaptive(
     :return: The thresholded image.
     """
     _error_if_image_empty(image)
+    _error_if_image_wrong_dtype(image, [np.uint8])
 
     method = cv.ADAPTIVE_THRESH_GAUSSIAN_C if weighted else cv.ADAPTIVE_THRESH_MEAN_C
     flags = cv.THRESH_BINARY_INV if inverse else cv.THRESH_BINARY
@@ -299,6 +300,8 @@ def threshold_otsu(
     image: np.ndarray, max_value: int = 255, inverse: bool = False
 ) -> np.ndarray:
     _error_if_image_empty(image)
+    _error_if_image_wrong_dtype(image, [np.float32, np.uint8])
+
     flags = cv.THRESH_BINARY_INV if inverse else cv.THRESH_BINARY
     flags += cv.THRESH_OTSU
     _, img = cv.threshold(image, 0, max_value, flags)
@@ -309,6 +312,8 @@ def threshold_binary(
     image: np.ndarray, value: int, max_value: int = 255, inverse: bool = False
 ) -> np.ndarray:
     _error_if_image_empty(image)
+    _error_if_image_wrong_dtype(image, [np.float32, np.uint8])
+
     flags = cv.THRESH_BINARY_INV if inverse else cv.THRESH_BINARY
     _, img = cv.threshold(image, value, max_value, flags)
     return img
@@ -318,6 +323,8 @@ def threshold_tozero(
     image: np.ndarray, value: int, max_value: int = 255, inverse: bool = False
 ) -> np.ndarray:
     _error_if_image_empty(image)
+    _error_if_image_wrong_dtype(image, [np.float32, np.uint8])
+
     flags = cv.THRESH_TOZERO_INV if inverse else cv.THRESH_TOZERO
     _, img = cv.threshold(image, value, max_value, flags)
     return img
@@ -327,6 +334,8 @@ def threshold_otsu_tozero(
     image: np.ndarray, max_value: int = 255, inverse: bool = False
 ) -> np.ndarray:
     _error_if_image_empty(image)
+    _error_if_image_wrong_dtype(image, [np.float32, np.uint8])
+
     flags = cv.THRESH_TOZERO_INV if inverse else cv.THRESH_TOZERO
     flags += cv.THRESH_OTSU
     _, img = cv.threshold(image, 0, max_value, flags)
@@ -362,15 +371,6 @@ def canny(
     )
 
 
-def scale_contour_to_rect(contour: Contour, rect: Rect) -> Contour:
-    contour = Contour(contour.points)
-    for i in range(len(contour)):
-        contour[i, 0] = contour[i, 0] - rect.x
-        contour[i, 1] = contour[i, 1] - rect.y
-
-    return contour
-
-
 def rotate_image(
     image: np.ndarray, center: Point, angle: float, unit: AngleUnit = AngleUnit.RADIANS
 ) -> np.ndarray:
@@ -398,6 +398,13 @@ def rotate_image(
         return copy
     else:
         raise ValueError("Image must have 2 or 3 dimensions.")
+
+
+def _error_if_image_wrong_dtype(image: np.ndarray, dtypes: Sequence[type]):
+    if image.dtype not in dtypes:
+        raise ValueError(
+            f"Image wrong dtype {image.dtype}, expected one of {[dtype for dtype in dtypes]}"
+        )
 
 
 def _error_if_image_empty(image: np.ndarray) -> None:
