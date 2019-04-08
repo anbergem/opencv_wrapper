@@ -12,6 +12,3 @@ mozilla-sphinx-theme = "*"
 Sphinx = "*"
 pytest = "*"
 pytest-mock = "*"
-
-[requires]
-python_version = ">=3.6"
