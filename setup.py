@@ -3,7 +3,7 @@ import sys
 
 from setuptools import setup
 
-with open("README.md") as fh:
+with open("README.md", encoding="utf-8") as fh:
     long_description = fh.read()
 
 requirements = ["numpy<=1.16.2", "opencv-python<=4.0.1"]
