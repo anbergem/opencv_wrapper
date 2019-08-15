@@ -18,6 +18,8 @@ from opencv_wrapper.image_operations import (
     threshold_binary,
     threshold_tozero,
     threshold_adaptive,
+    canny,
+    rotate_image,
 )
 
 functions = inspect.getmembers(opencv_wrapper.image_operations, inspect.isfunction)
@@ -181,11 +183,11 @@ def test_resize_fail_no_shape_or_factor(gray_image, kwargs):
         resize(gray_image, **kwargs)
 
 
-def test_resize_fail_image_wrong_dim(image, shape):
-    for ndim in 1, 4:
-        image.ndim = ndim
-        with pytest.raises(ValueError):
-            resize(image, shape=shape)
+@pytest.mark.parametrize("ndim", [1, 4])
+def test_resize_fail_image_wrong_dim(image, shape, ndim):
+    image.ndim = ndim
+    with pytest.raises(ValueError):
+        resize(image, shape=shape)
 
 
 @pytest.mark.parametrize(
@@ -392,3 +394,95 @@ def test_adaptive_threshold2(
     cv_mock.adaptiveThreshold.assert_called_once_with(
         image_uint8, 255, method, flags, block_size, c
     )
+
+
+@pytest.mark.parametrize("size", [3, 5, 7])
+def test_canny(mocker, image_uint8, cv_mock, _empty_func, size):
+    # Todo: What does canny accept of dtype?
+    low_threshold = mocker.Mock()
+    high_threshold = mocker.Mock()
+    l2_gradient = mocker.Mock()
+
+    canny(image_uint8, low_threshold, high_threshold, size, l2_gradient)
+
+    _empty_func.assert_called_once_with(image_uint8)
+    # _wrong_dtype_func.assert_called_once_with(image_uint8, [np_mock.uint8])
+
+    cv_mock.Canny.assert_called_once_with(
+        image_uint8,
+        threshold1=low_threshold,
+        threshold2=high_threshold,
+        apertureSize=size,
+        L2gradient=l2_gradient,
+    )
+
+
+@pytest.mark.parametrize("size", [1, 2, 4, 9])
+def test_canny_raise_error_on_wrong_high_pass_size(
+    mocker, image_uint8, cv_mock, _empty_func, size
+):
+    # Todo: What does canny accept of dtype?
+    low_threshold = mocker.Mock()
+    high_threshold = mocker.Mock()
+    l2_gradient = mocker.Mock()
+
+    with pytest.raises(ValueError):
+        canny(image_uint8, low_threshold, high_threshold, size, l2_gradient)
+
+
+def test_rotate_gray_image(mocker, cv_mock, gray_image, _empty_func):
+    center = mocker.MagicMock()
+    angle = mocker.Mock()
+    angle_unit = opencv_wrapper.AngleUnit.DEGREES
+
+    rotation_matrix_mock = mocker.Mock()
+    cv_mock.getRotationMatrix2D.return_value = rotation_matrix_mock
+
+    rotate_image(gray_image, center, angle, angle_unit)
+
+    cv_mock.getRotationMatrix2D.assert_called_once_with((*center,), angle, scale=1)
+
+    cv_mock.warpAffine.assert_called_once_with(
+        gray_image, rotation_matrix_mock, gray_image.shape[::-1]
+    )
+
+
+def test_rotate_color_image(mocker, cv_mock, np_mock, color_image, _empty_func):
+    center = mocker.MagicMock()
+    angle = mocker.Mock()
+    angle_unit = opencv_wrapper.AngleUnit.DEGREES
+
+    rotation_matrix_mock = mocker.Mock()
+    cv_mock.getRotationMatrix2D.return_value = rotation_matrix_mock
+
+    shape = (24, 48, 3)
+    color_image.shape = shape
+    np_mock.zeros_like.return_value = mocker.MagicMock(shape=shape)
+
+    rotate_image(color_image, center, angle, angle_unit)
+
+    cv_mock.getRotationMatrix2D.assert_called_once_with((*center,), angle, scale=1)
+
+    from unittest.mock import call
+
+    calls = [
+        call(color_image[..., 0], rotation_matrix_mock, (48, 24)),
+        call(color_image[..., 1], rotation_matrix_mock, (48, 24)),
+        call(color_image[..., 2], rotation_matrix_mock, (48, 24)),
+    ]
+    cv_mock.warpAffine.assert_has_calls(calls)
+
+
+@pytest.mark.parametrize("ndim", [0, 1, 4])
+def test_rotate_image_raise_error_on_wrong_dimensions(mocker, cv_mock, image, ndim):
+    center = mocker.MagicMock()
+    angle = mocker.Mock()
+    angle_unit = opencv_wrapper.AngleUnit.DEGREES
+
+    rotation_matrix_mock = mocker.Mock()
+    cv_mock.getRotationMatrix2D.return_value = rotation_matrix_mock
+
+    image.ndim = ndim
+
+    with pytest.raises(ValueError):
+        rotate_image(image, center, angle, angle_unit)

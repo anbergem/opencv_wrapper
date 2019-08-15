@@ -384,6 +384,8 @@ def rotate_image(
     :param unit: The unit of the angle
     :return: The rotated image.
     """
+    _error_if_image_empty(image)
+
     if unit is AngleUnit.RADIANS:
         angle = 180 / np.pi * angle
     rotation_matrix = cv.getRotationMatrix2D((*center,), angle, scale=1)
