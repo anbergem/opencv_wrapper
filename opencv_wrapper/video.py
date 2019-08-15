@@ -146,7 +146,7 @@ class VideoWriter(object):
 
         :param filename: Name of the output video file.
         :param fps: Framerate of the created video stream.
-        :param capture: A capture object from cv.VideoCapture or :func:`load_video`. Used to retrieve
+        :param capture: A capture object from cv2.VideoCapture or :func:`load_video`. Used to retrieve
                         fps if `fps` is not provided.
         :param fourcc: 4-character code of codec used to compress the frames. See
                        `documentation <https://docs.opencv.org/3.4.5/dd/d9e/classcv_1_1VideoWriter.html#ac3478f6257454209fa99249cc03a5c59>`_
