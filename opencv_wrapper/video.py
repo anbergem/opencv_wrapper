@@ -10,12 +10,51 @@ Usage:
 >>>        cv.waitKey(1)
 """
 from contextlib import contextmanager
-from typing import Optional, Iterator, Any
+from typing import Optional, Iterator, Any, Union
 
 import cv2 as cv
 import numpy as np
 
 from .image_operations import _error_if_image_empty
+
+
+class VideoCapture(cv.VideoCapture):
+    """A video capture object for displaying videos.
+
+    For normal use, use :func:`.load_camera` and :func:`.load_camera` instead.
+    """
+
+    def __init__(self, source: Union[int, str]):
+        """
+        The object can be created using either an index of a connected camera, or a
+        filename of a video file.
+
+        :param source: Either index of camera or filename of video file.
+        """
+        super().__init__(source)
+
+    def __iter__(self):
+        ok, current = self.read()
+        if not ok:
+            raise ValueError(f"Could not read video.")
+
+        next_ok, next = self.read()
+
+        yield current
+
+        # If next frame is also good
+        if next_ok:
+            current = next
+
+            while True:
+                next_ok, next = self.read()
+
+                yield current
+
+                current = next
+
+                if not next_ok:
+                    return
 
 
 @contextmanager
@@ -28,7 +67,7 @@ def load_camera(index: int = 0) -> Iterator[Any]:
 
     .. _cv2.VideoCapture(index) documentation : https://docs.opencv.org/3.4.5/d8/dfe/classcv_1_1VideoCapture.html#a5d5f5dacb77bbebdcbfb341e3d4355c1
     """
-    video = cv.VideoCapture(index)
+    video = VideoCapture(index)
     if not video.isOpened():
         raise ValueError(f"Could not open camera with index {index}")
     try:
@@ -53,7 +92,7 @@ def load_video(filename: str) -> Iterator[Any]:
     .. _cv2.VideoCapture(filename) documentation: https://docs.opencv.org/3.4.3/d8/dfe/classcv_1_1VideoCapture.html#a85b55cf6a4a50451367ba96b65218ba1
     """
 
-    video = cv.VideoCapture(filename)
+    video = VideoCapture(filename)
     if not video.isOpened():
         raise ValueError(f"Could not open video with filename {filename}")
     try:
@@ -63,7 +102,7 @@ def load_video(filename: str) -> Iterator[Any]:
 
 
 def read_frames(
-    video: cv.VideoCapture, start: int = 0, stop: Optional[int] = None, step: int = 1
+    video: VideoCapture, start: int = 0, stop: Optional[int] = None, step: int = 1
 ) -> Iterator[np.ndarray]:
     """Read frames of a video object.
 
