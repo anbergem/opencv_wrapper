@@ -17,3 +17,6 @@ upload-test:
 	make clean
 	make wheel
 	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+
+mypy:
+    mypy opencv_wrapper --disallow-untyped-defs

@@ -1,0 +1,14 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+opencv-wrapper = {editable = true, path = "."}
+
+[dev-packages]
+sphinx-autodoc-typehints = "*"
+mozilla-sphinx-theme = "*"
+Sphinx = "*"
+pytest = "*"
+pytest-mock = "*"

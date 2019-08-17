@@ -119,3 +119,6 @@ dmypy.json
 
 # macOS stuff
 .DS_STORE
+
+# Pipfile
+Pipfile.lock
