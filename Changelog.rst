@@ -6,9 +6,17 @@ dev
 
 **New**
 
+**Changes**
+
+v0.2.3 (2019-08-17)
+-------------------
+
+**New**
+
 - Add tests
 - Add `__radd__`, `__rsub__` and `__neg__` for Point.
 - Add `inverse` option for remaining threhsolding functions
+- The video received from `load_video` and `load_camera` are now iterable
 
 **Changes**
 

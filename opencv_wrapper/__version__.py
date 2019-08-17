@@ -1,7 +1,7 @@
 __title__ = "opencv-wrapper"
 __description__ = "A Python wrapper for OpenCV."
 __url__ = "https://github.com/anbergem/opencv_wrapper"
-__version__ = "0.2.2"
+__version__ = "0.2.3"
 __author__ = "Andreas Bergem"
 __author_email__ = "bergem.andreas@gmail.com"
 __license__ = "MIT"
