@@ -24,13 +24,19 @@ We therefore have a more pythonic approach, using OpenCV Wrapper::
     import opencv_wrapper as cvw
 
     with cvw.load_video("path/to/file") as video:
-        for frame in cvw.read_frames(video):
+        for frame in video:
             cv.imshow("Frame", frame)
             cvw.wait_key(1)
 
-`read_frames` also has `start`, `stop` and `step` parameters, that work
-the same way as Pythons built-in `range`.
+Alternatively, we can read a range of frames::
 
+    import cv2 as cv
+    import opencv_wrapper as cvw
+
+    with cvw.load_video("path/to/file") as video:
+        for frame in cvw.read_frames(video, start, stop, step):
+            cv.imshow("Frame", frame)
+            cvw.wait_key(1)
 
 Larger Example - Rotate A Color Wheel
 -------------------------------------

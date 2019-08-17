@@ -19,4 +19,4 @@ upload-test:
 	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 mypy:
-    mypy opencv_wrapper --disallow-untyped-defs
+	mypy opencv_wrapper --disallow-untyped-defs

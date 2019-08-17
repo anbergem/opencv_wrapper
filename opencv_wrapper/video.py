@@ -1,11 +1,11 @@
 """
-Convenience functions for reading videos.
+Convenience functions for reading and writing videos.
 
 Usage:
 
 >>> import cv2 as cv
 >>> with load_video("path/to/file") as video:
->>>    for frame in read_frames(video):
+>>>    for frame in video:
 >>>        cv.imshow("Frame", frame)
 >>>        cv.waitKey(1)
 """

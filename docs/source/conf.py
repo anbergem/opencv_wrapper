@@ -15,10 +15,7 @@
 import os
 import sys
 
-import mozilla_sphinx_theme
-
-# Mozilla theme
-html_theme_path = [os.path.dirname(mozilla_sphinx_theme.__file__)]
+import sphinx_rtd_theme
 
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -42,6 +39,7 @@ extensions = [
     "sphinx.ext.coverage",
     "sphinx.ext.viewcode",
     "sphinx_autodoc_typehints",
+    "sphinx_rtd_theme",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -123,7 +121,7 @@ autoclass_content = "both"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 # html_theme = "alabaster"
-html_theme = "mozilla"
+html_theme = "sphinx_rtd_theme"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

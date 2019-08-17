@@ -44,9 +44,19 @@ video.release()
 ``` 
 
 opencv_wrapper:
+
 ```python
 import cv2 as cv
 import opencv_wrapper as cvw
+with cvw.load_video("path/to/file") as video:
+   for frame in video:
+       cv.imshow("Frame", frame)
+       if cvw.wait_key(0) == ord('q'):
+            break 
+```
+
+Or, if you want to read a range of frames:
+```python
 with cvw.load_video("path/to/file") as video:
    for frame in cvw.read_frames(video, start, stop, step):
        cv.imshow("Frame", frame)
