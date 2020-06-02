@@ -18,9 +18,13 @@ enhancement proposals!
 ## Installation
 Getting started is easy, using pip or pipenv! 
 ```bash
-pip(env) install opencv-wrapper
+pip(env) install opencv-wrapper opencv-python
 ```
-This also installs the dependencies `opencv-python` and `numpy`, if not already present.
+
+Note that you must install `opencv-python` separately. The reason is so that
+you can select the appropriate package from `opencv-python` and
+`opencv-python-headless`, or instead opt to compile the Python bindings are
+part of the OpenCV source tree yourself.
 
 ## Examples
 ### Reading videos

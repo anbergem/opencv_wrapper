@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 opencv-wrapper = {editable = true,path = "."}
+opencv-python-headless = "*"
 
 [dev-packages]
 sphinx-autodoc-typehints = "*"
