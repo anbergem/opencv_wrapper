@@ -33,6 +33,27 @@ class VideoCapture(cv.VideoCapture):
         """
         super().__init__(source)
 
+    @property
+    def width(self):
+        """
+        The width of the video capture source.
+        """
+        return self.get(cv.CAP_PROP_FRAME_WIDTH)
+
+    @property
+    def height(self):
+        """
+        The height of the video capture source.
+        """
+        return self.get(cv.CAP_PROP_FRAME_HEIGHT)
+
+    @property
+    def fps(self):
+        """
+        The frames-per-second of the video capture source.
+        """
+        return self.get(cv.CAP_PROP_FPS)
+
     def __iter__(self):
         ok, current = self.read()
         if not ok:
