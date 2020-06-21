@@ -6,7 +6,7 @@ Installation
 
 Getting started is easy, using pip or pipenv!::
 
-    pip(env) install opencv-wrapper
+    pip(env) install opencv-wrapper opencv-python
 
 Reading and writing
 -------------------
